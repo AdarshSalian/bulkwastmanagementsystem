@@ -1,0 +1,2355 @@
+{
+  "users": [
+    {
+      "id": "user-admin",
+      "username": "admin",
+      "passwordHash": "$2a$10$Y1erYIlR1BTKqSUKg0sbL.URejD.JLbzkHZKvVjlWdqLmqytM9urm",
+      "role": "Admin",
+      "name": "System Administrator",
+      "contact": "+1 555-0100",
+      "email": "admin@bulkways.com",
+      "status": "active"
+    },
+    {
+      "id": "user-generator",
+      "username": "generator",
+      "passwordHash": "$2a$10$Y1erYIlR1BTKqSUKg0sbL.GAnhY5tywdMmsFaUwS3vbAX02nOjI9W",
+      "role": "Generator",
+      "name": "Greenwood Residential Society",
+      "organizationName": "Greenwood RWA",
+      "contact": "+1 555-0199",
+      "email": "greenwood@society.com",
+      "status": "active"
+    },
+    {
+      "id": "user-generator2",
+      "username": "pending_generator",
+      "passwordHash": "$2a$10$Y1erYIlR1BTKqSUKg0sbL.GAnhY5tywdMmsFaUwS3vbAX02nOjI9W",
+      "role": "Generator",
+      "name": "Skyline Commercial Mall",
+      "organizationName": "Skyline Properties",
+      "contact": "+1 555-0155",
+      "email": "skyline@commercial.com",
+      "status": "active",
+      "docs": [
+        "license.pdf"
+      ]
+    },
+    {
+      "id": "user-driver",
+      "username": "driver",
+      "passwordHash": "$2a$10$Y1erYIlR1BTKqSUKg0sbL.URejD.JLbzkHZKvVjlWdqLmqytM9urm",
+      "role": "Driver",
+      "name": "John Doe (Transporter)",
+      "contact": "+1 555-0122",
+      "email": "john.driver@bulkways.com",
+      "status": "active"
+    },
+    {
+      "id": "user-driver-john",
+      "username": "john_doe",
+      "passwordHash": "$2a$10$Y1erYIlR1BTKqSUKg0sbL.URejD.JLbzkHZKvVjlWdqLmqytM9urm",
+      "role": "Driver",
+      "name": "John Doe (Transporter)",
+      "contact": "+1 555-0122",
+      "email": "john.driver@bulkways.com",
+      "status": "active"
+    },
+    {
+      "id": "user-driver2",
+      "username": "driver2",
+      "passwordHash": "$2a$10$Y1erYIlR1BTKqSUKg0sbL.GAnhY5tywdMmsFaUwS3vbAX02nOjI9W",
+      "role": "Driver",
+      "name": "Jane Smith (Transporter)",
+      "contact": "+1 555-0123",
+      "email": "jane.driver@bulkways.com",
+      "status": "active"
+    },
+    {
+      "id": "user-operator",
+      "username": "operator",
+      "passwordHash": "$2a$10$Y1erYIlR1BTKqSUKg0sbL.GAnhY5tywdMmsFaUwS3vbAX02nOjI9W",
+      "role": "Operator",
+      "name": "Alex Mercer (Operator)",
+      "contact": "+1 555-0188",
+      "email": "alex.operator@bulkways.com",
+      "status": "active"
+    },
+    {
+      "username": "mahesg",
+      "passwordHash": "$2a$10$JYmUdk170kztc663dysGReq9AYmPNl/a1UU6NTjydUNop5iPw79iy",
+      "role": "Generator",
+      "name": "mahesh",
+      "contact": "6268726762862862",
+      "email": "adarshawwsalian2003@gmail.com",
+      "organizationName": "home",
+      "status": "active",
+      "docs": [
+        "doc-1784611651474.png"
+      ],
+      "id": "use-1784611651779-277"
+    },
+    {
+      "username": "shravan",
+      "passwordHash": "$2a$10$.JE4hdWIkvvloMGbnMS0Lu4jPJQdWjKIsCvxQ7TxbuzRSjIU6kjcK",
+      "role": "Generator",
+      "name": "shravan a b c d",
+      "contact": "876577676",
+      "email": "shravansalian2003@gmail.com",
+      "organizationName": "home",
+      "status": "active",
+      "docs": [
+        "doc-1784695776159.png"
+      ],
+      "id": "use-1784695776240-849"
+    },
+    {
+      "username": "vishva",
+      "passwordHash": "$2a$10$LsBbj.02en4f2Q/Z4Du7k.V638bAsmxDPkptLh0pLWpV1rHgHCQLi",
+      "role": "Generator",
+      "name": "vishva",
+      "contact": "3545454545",
+      "email": "vishva2003@gmail.com",
+      "organizationName": "abc",
+      "status": "active",
+      "docs": [
+        "doc-1786682451810.png"
+      ],
+      "id": "use-1786682452010-960"
+    },
+    {
+      "username": "amith",
+      "passwordHash": "$2a$10$SrHRDEeyeB9cxjf7272QuO4ETBj8dJoNbCyOjga8mny3eaihRfbQS",
+      "role": "Generator",
+      "name": "Adarsh Salian",
+      "contact": "234567876",
+      "email": "amith2003@gmail.com",
+      "organizationName": "esdf",
+      "status": "active",
+      "docs": [
+        "doc-1787028735885.png"
+      ],
+      "id": "use-1787028736024-323"
+    }
+  ],
+  "properties": [
+    {
+      "id": "prop-1",
+      "userId": "user-generator",
+      "name": "Greenwood Society Phase 1",
+      "address": "100 Green Avenue, Sector 4",
+      "type": "Residential",
+      "details": "300 residential apartments"
+    },
+    {
+      "userId": "user-generator",
+      "name": "abc ",
+      "address": "ududpi",
+      "type": "Institutional",
+      "details": "house no 123",
+      "id": "pro-1783401116872-538"
+    },
+    {
+      "userId": "user-generator",
+      "name": "darshan villa",
+      "address": "kundapura",
+      "type": "Commercial",
+      "details": "kundapura 3/78",
+      "id": "pro-1783401644871-880"
+    },
+    {
+      "userId": "user-generator",
+      "name": "vfe",
+      "address": "vef",
+      "type": "Residential",
+      "details": "sdw",
+      "id": "pro-1783414285550-65"
+    },
+    {
+      "userId": "user-generator",
+      "name": "mno",
+      "address": "ududpi",
+      "type": "Commercial",
+      "details": "11",
+      "id": "pro-1785315774011-982"
+    },
+    {
+      "userId": "user-generator",
+      "name": "zdd",
+      "address": "abcs",
+      "type": "Industrial",
+      "details": "a",
+      "id": "pro-1785750184901-581"
+    },
+    {
+      "userId": "user-generator",
+      "name": "hvviyv",
+      "address": "nitte",
+      "type": "Residential",
+      "details": "",
+      "id": "pro-1786339827784-941"
+    },
+    {
+      "userId": "user-generator",
+      "name": "nitte",
+      "address": "nitte",
+      "type": "Residential",
+      "details": "",
+      "id": "pro-1786339837991-93"
+    },
+    {
+      "userId": "user-generator",
+      "name": "tdut",
+      "address": "nitte",
+      "type": "Commercial",
+      "details": "",
+      "id": "pro-1786510546198-523"
+    },
+    {
+      "userId": "user-generator",
+      "name": "SH1",
+      "address": " nitte, Karkala taluk, Udupi, Karnataka, 576111, India",
+      "type": "Residential",
+      "details": "",
+      "id": "pro-1786510655168-148"
+    },
+    {
+      "userId": "user-generator",
+      "name": "neelanjan",
+      "address": "Brahmagiri, Udupi, Udupi taluku, Udupi, Karnataka, 576101, India",
+      "type": "Residential",
+      "details": "",
+      "id": "pro-1786511935455-809"
+    },
+    {
+      "userId": "use-1786682452010-960",
+      "name": "dafe",
+      "address": "Korankara Padi, Bailuru, Udupi taluku, Udupi, Karnataka, 576101, India",
+      "type": "Residential",
+      "details": "",
+      "lat": 13.313643,
+      "lng": 74.750406,
+      "id": "pro-1786682487355-875"
+    },
+    {
+      "userId": "use-1787028736024-323",
+      "name": "ertyuytre",
+      "address": "Poorna Prajna College, SH37, Indiranagara, Udupi, Udupi taluku, Udupi, Karnataka, 576101, India",
+      "type": "Residential",
+      "details": "",
+      "lat": 13.334998,
+      "lng": 74.753054,
+      "id": "pro-1787028785342-63"
+    }
+  ],
+  "vehicles": [
+    {
+      "id": "veh-1",
+      "licensePlate": "TRK-9844",
+      "type": "Compactor",
+      "capacity": 10,
+      "status": "Active",
+      "driverId": "user-driver"
+    },
+    {
+      "id": "veh-2",
+      "licensePlate": "TRK-4422",
+      "type": "Dumper",
+      "capacity": 15,
+      "status": "Active",
+      "driverId": "user-driver2"
+    }
+  ],
+  "plants": [
+    {
+      "id": "plant-1",
+      "name": "Metro Eco Composting Plant",
+      "location": "Industrial Area Phase 2",
+      "capacity": 50,
+      "currentLoad": 12.5,
+      "type": "Composting",
+      "status": "Active"
+    },
+    {
+      "id": "plant-2",
+      "name": "City Core Recycling & Segregation Hub",
+      "location": "North Outer Ring Road",
+      "capacity": 80,
+      "currentLoad": 24,
+      "type": "Recycling",
+      "status": "Active"
+    }
+  ],
+  "requests": [
+    {
+      "id": "req-1",
+      "generatorId": "user-generator",
+      "propertyId": "prop-1",
+      "wasteType": "Organic",
+      "wasteQuantity": 5.5,
+      "status": "Completed",
+      "scheduledDate": "2026-06-20",
+      "assignedDriverId": "user-driver",
+      "assignedVehicleId": "veh-1",
+      "weight": 5.4,
+      "amount": 270,
+      "paymentStatus": "Paid",
+      "paymentDetails": {
+        "paymentMethod": "UPI",
+        "transactionId": "pay_tx_123456",
+        "paidAt": "2026-06-20T10:30:00Z"
+      },
+      "complaintId": "com-1783414038336-731",
+      "createdAt": "2026-06-18T09:00:00Z"
+    },
+    {
+      "id": "req-2",
+      "generatorId": "user-generator",
+      "propertyId": "prop-1",
+      "wasteType": "Recyclable",
+      "wasteQuantity": 3,
+      "status": "Collected",
+      "scheduledDate": "2026-06-25",
+      "assignedDriverId": "user-driver2",
+      "assignedVehicleId": "veh-2",
+      "weight": 1.2,
+      "amount": 150,
+      "paymentStatus": "Paid",
+      "paymentDetails": {
+        "paymentMethod": "UPI / Card Online",
+        "transactionId": "pay_razor_1783414085066",
+        "paidAt": "2026-07-07T08:48:05.089Z"
+      },
+      "complaintId": "com-1785750208827-709",
+      "createdAt": "2026-06-23T14:30:00Z"
+    },
+    {
+      "generatorId": "user-generator",
+      "propertyId": "pro-1783401644871-880",
+      "wasteType": "Recyclable",
+      "wasteQuantity": 1,
+      "status": "Collected",
+      "scheduledDate": "2026-07-07",
+      "assignedDriverId": "user-driver2",
+      "assignedVehicleId": "veh-2",
+      "weight": 1.7,
+      "amount": 60,
+      "paymentStatus": "Unpaid",
+      "paymentDetails": null,
+      "complaintId": null,
+      "createdAt": "2026-07-07T05:21:43.929Z",
+      "id": "req-1783401703929-103"
+    },
+    {
+      "generatorId": "user-generator",
+      "propertyId": "pro-1783414285550-65",
+      "wasteType": "Recyclable",
+      "wasteQuantity": 4,
+      "status": "Collected",
+      "scheduledDate": "2000-04-04",
+      "assignedDriverId": "user-driver",
+      "assignedVehicleId": "veh-1",
+      "weight": 0.9,
+      "amount": 160,
+      "paymentStatus": "Unpaid",
+      "paymentDetails": null,
+      "complaintId": null,
+      "createdAt": "2026-07-07T08:51:59.564Z",
+      "id": "req-1783414319564-376"
+    },
+    {
+      "generatorId": "user-generator",
+      "propertyId": "pro-1783414285550-65",
+      "wasteType": "Recyclable",
+      "wasteQuantity": 0.8,
+      "status": "Collected",
+      "scheduledDate": "2036-09-09",
+      "assignedDriverId": "user-driver2",
+      "assignedVehicleId": "veh-2",
+      "weight": 0.8,
+      "amount": 32,
+      "paymentStatus": "Unpaid",
+      "paymentDetails": null,
+      "complaintId": null,
+      "createdAt": "2026-08-03T09:49:00.263Z",
+      "id": "req-1785750540264-254"
+    },
+    {
+      "generatorId": "user-generator",
+      "propertyId": "pro-1783401116872-538",
+      "wasteType": "Organic",
+      "wasteQuantity": 1.4,
+      "status": "Collected",
+      "scheduledDate": "11111-11-11",
+      "assignedDriverId": "user-driver",
+      "assignedVehicleId": "veh-2",
+      "weight": 0.3,
+      "amount": 70,
+      "paymentStatus": "Unpaid",
+      "paymentDetails": null,
+      "complaintId": null,
+      "createdAt": "2026-08-10T06:51:11.455Z",
+      "id": "req-1786344671455-457"
+    },
+    {
+      "generatorId": "user-generator",
+      "propertyId": "pro-1786511935455-809",
+      "wasteType": "Organic",
+      "wasteQuantity": 1,
+      "distanceKm": 0,
+      "transportFee": 0,
+      "weightFee": 60,
+      "amount": 60,
+      "status": "Collected",
+      "scheduledDate": "1111-11-11",
+      "assignedDriverId": "user-driver2",
+      "assignedVehicleId": "veh-2",
+      "weight": 6,
+      "paymentStatus": "Unpaid",
+      "paymentDetails": null,
+      "complaintId": null,
+      "createdAt": "2026-08-12T05:43:01.654Z",
+      "id": "req-1786513381654-446"
+    },
+    {
+      "generatorId": "use-1786682452010-960",
+      "propertyId": "pro-1786682487355-875",
+      "wasteType": "Organic",
+      "wasteQuantity": 1.8,
+      "distanceKm": 6.8,
+      "transportFee": 87,
+      "weightFee": 68,
+      "amount": 155,
+      "status": "Assigned",
+      "scheduledDate": "1111-11-11",
+      "assignedDriverId": "user-driver",
+      "assignedVehicleId": "veh-2",
+      "weight": 0,
+      "paymentStatus": "Paid",
+      "paymentDetails": {
+        "paymentMethod": "Razorpay Checkout (UPI/Card/Netbanking)",
+        "transactionId": "pay_TPWP4Vra2gbZFI",
+        "paidAt": "2026-08-14T04:42:24.529Z"
+      },
+      "complaintId": null,
+      "createdAt": "2026-08-14T04:41:49.946Z",
+      "id": "req-1786682509946-61"
+    },
+    {
+      "generatorId": "use-1787028736024-323",
+      "propertyId": "pro-1787028785342-63",
+      "wasteType": "Recyclable",
+      "wasteQuantity": 0.8,
+      "distanceKm": 5.8,
+      "transportFee": 72,
+      "weightFee": 32,
+      "amount": 56,
+      "status": "Collected",
+      "scheduledDate": "1111-11-11",
+      "assignedDriverId": "user-driver2",
+      "assignedVehicleId": "veh-2",
+      "weight": 1.4,
+      "paymentStatus": "Paid (User Received Payout)",
+      "paymentDetails": {
+        "paymentMethod": "Paid by Driver to User (Admin Dispatched Funds)",
+        "transactionId": "PAYOUT-DRV-1787028977511",
+        "paidAt": "2026-08-18T04:56:17.511Z",
+        "payerDriverId": "user-driver2",
+        "amountPaidToUser": 56
+      },
+      "complaintId": null,
+      "createdAt": "2026-08-18T04:53:34.768Z",
+      "id": "req-1787028814768-533",
+      "adminDispatchedFunds": 104,
+      "driverFundStatus": "Funded by Admin"
+    },
+    {
+      "generatorId": "use-1787028736024-323",
+      "propertyId": "pro-1787028785342-63",
+      "wasteType": "Organic",
+      "wasteQuantity": 1.1,
+      "distanceKm": 5.8,
+      "transportFee": 72,
+      "weightFee": 61,
+      "amount": 133,
+      "status": "Pending",
+      "scheduledDate": "2222-02-22",
+      "assignedDriverId": null,
+      "assignedVehicleId": null,
+      "weight": 0,
+      "paymentStatus": "Unpaid",
+      "paymentDetails": null,
+      "complaintId": null,
+      "createdAt": "2026-08-18T04:53:55.305Z",
+      "id": "req-1787028835305-369"
+    }
+  ],
+  "plantDeliveries": [
+    {
+      "id": "del-1",
+      "requestId": "req-1",
+      "plantId": "plant-1",
+      "driverId": "user-driver",
+      "weight": 5.4,
+      "status": "Completed",
+      "segregationInfo": {
+        "organicWeight": 4.8,
+        "recyclableWeight": 0.4,
+        "residualWeight": 0.2
+      },
+      "recyclingTally": 0.4,
+      "approvedByOperator": "user-operator",
+      "approvedAt": "2026-06-20T12:00:00Z"
+    }
+  ],
+  "complaints": [
+    {
+      "id": "comp-1",
+      "generatorId": "user-generator",
+      "requestId": "req-1",
+      "title": "Delayed Pickup Time",
+      "description": "The driver arrived 2 hours later than the scheduled time window.",
+      "status": "Resolved",
+      "resolutionText": "Apologies for the delay. Traffic congestion on Route 4 caused the driver to fall behind. We have adjusted future time slots to mitigate this.",
+      "createdAt": "2026-06-20T14:00:00Z"
+    },
+    {
+      "generatorId": "user-generator",
+      "requestId": "req-1",
+      "title": "late",
+      "description": "lateeee",
+      "status": "Resolved",
+      "resolutionText": "uguiy",
+      "createdAt": "2026-07-07T08:47:18.336Z",
+      "id": "com-1783414038336-731"
+    },
+    {
+      "generatorId": "user-generator",
+      "requestId": "req-2",
+      "title": "fzddg",
+      "description": "tdyt",
+      "status": "Resolved",
+      "resolutionText": "ghcghjkl;lkjbv",
+      "createdAt": "2026-08-03T09:43:28.827Z",
+      "id": "com-1785750208827-709"
+    }
+  ],
+  "notifications": [
+    {
+      "id": "notif-1",
+      "userId": "user-generator",
+      "title": "Pickup Completed",
+      "message": "Your waste pickup request req-1 has been successfully completed.",
+      "type": "success",
+      "read": true,
+      "createdAt": "2026-06-20T12:05:00Z"
+    },
+    {
+      "userId": "user-generator2",
+      "title": "Account Approved",
+      "message": "Your property registration has been verified and your account is active!",
+      "type": "success",
+      "read": true,
+      "createdAt": "2026-07-07T04:34:07.652Z",
+      "id": "not-1783398847653-262"
+    },
+    {
+      "userId": "user-driver2",
+      "title": "New Trip Assignment",
+      "message": "You have been assigned to pickup request req-2.",
+      "type": "info",
+      "read": true,
+      "createdAt": "2026-07-07T04:47:29.916Z",
+      "id": "not-1783399649916-43"
+    },
+    {
+      "userId": "user-generator",
+      "title": "Vehicle Assigned",
+      "message": "A collection vehicle (veh-2) has been dispatched for scheduled date 2026-06-25.",
+      "type": "success",
+      "read": true,
+      "createdAt": "2026-07-07T04:47:29.916Z",
+      "id": "not-1783399649916-841"
+    },
+    {
+      "userId": "user-admin",
+      "title": "New Waste Pickup Request",
+      "message": "Generator raised a pickup request for 1 tons of Other waste.",
+      "type": "info",
+      "read": true,
+      "createdAt": "2026-07-07T05:21:43.934Z",
+      "id": "not-1783401703934-707"
+    },
+    {
+      "userId": "user-driver2",
+      "title": "New Trip Assignment",
+      "message": "You have been assigned to pickup request req-1783401703929-103.",
+      "type": "info",
+      "read": true,
+      "createdAt": "2026-07-07T05:22:45.168Z",
+      "id": "not-1783401765168-827"
+    },
+    {
+      "userId": "user-generator",
+      "title": "Vehicle Assigned",
+      "message": "A collection vehicle (veh-2) has been dispatched for scheduled date 2026-07-07.",
+      "type": "success",
+      "read": true,
+      "createdAt": "2026-07-07T05:22:45.169Z",
+      "id": "not-1783401765169-755"
+    },
+    {
+      "userId": "user-admin",
+      "title": "New Complaint Ticket Raised",
+      "message": "Generator raised complaint on request req-1: \"late\"",
+      "type": "warning",
+      "read": true,
+      "createdAt": "2026-07-07T08:47:18.340Z",
+      "id": "not-1783414038340-693"
+    },
+    {
+      "userId": "user-generator",
+      "title": "Payment Received",
+      "message": "Your payment of $150 was received. Invoice generated.",
+      "type": "success",
+      "read": true,
+      "createdAt": "2026-07-07T08:48:05.098Z",
+      "id": "not-1783414085098-165"
+    },
+    {
+      "userId": "user-admin",
+      "title": "Revenue Collected",
+      "message": "Generator paid $150 for request req-2.",
+      "type": "info",
+      "read": true,
+      "createdAt": "2026-07-07T08:48:05.102Z",
+      "id": "not-1783414085102-827"
+    },
+    {
+      "userId": "user-admin",
+      "title": "New Waste Pickup Request",
+      "message": "Generator raised a pickup request for 4 tons of Recyclable waste.",
+      "type": "info",
+      "read": true,
+      "createdAt": "2026-07-07T08:51:59.566Z",
+      "id": "not-1783414319566-47"
+    },
+    {
+      "userId": "user-driver",
+      "title": "New Trip Assignment",
+      "message": "You have been assigned to pickup request req-1783414319564-376.",
+      "type": "info",
+      "read": true,
+      "createdAt": "2026-07-14T05:44:38.133Z",
+      "id": "not-1784007878134-369"
+    },
+    {
+      "userId": "user-generator",
+      "title": "Vehicle Assigned",
+      "message": "A collection vehicle (veh-1) has been dispatched for scheduled date 2000-04-04.",
+      "type": "success",
+      "read": true,
+      "createdAt": "2026-07-14T05:44:38.141Z",
+      "id": "not-1784007878141-42"
+    },
+    {
+      "userId": "user-generator",
+      "title": "Complaint Resolved",
+      "message": "Support Ticket \"late\" has been marked as resolved: \"uguiy\"",
+      "type": "success",
+      "read": true,
+      "createdAt": "2026-07-21T04:40:55.651Z",
+      "id": "not-1784608855651-84"
+    },
+    {
+      "userId": "user-admin",
+      "title": "New Registration Approval Required",
+      "message": "Waste Generator \"mahesh\" registered and requires activation approval.",
+      "type": "warning",
+      "read": true,
+      "createdAt": "2026-07-21T05:27:31.785Z",
+      "id": "not-1784611651785-514"
+    },
+    {
+      "userId": "use-1784611651779-277",
+      "title": "Account Approved",
+      "message": "Your property registration has been verified and your account is active!",
+      "type": "success",
+      "read": false,
+      "createdAt": "2026-07-21T05:35:01.236Z",
+      "id": "not-1784612101236-406"
+    },
+    {
+      "userId": "user-admin",
+      "title": "New Registration Approval Required",
+      "message": "Waste Generator \"shravan a b c d\" registered and requires activation approval.",
+      "type": "warning",
+      "read": true,
+      "createdAt": "2026-07-22T04:49:36.241Z",
+      "id": "not-1784695776241-511"
+    },
+    {
+      "userId": "use-1784695776240-849",
+      "title": "Account Approved",
+      "message": "Your property registration has been verified and your account is active!",
+      "type": "success",
+      "read": false,
+      "createdAt": "2026-07-22T04:50:13.188Z",
+      "id": "not-1784695813188-910"
+    },
+    {
+      "userId": "user-generator",
+      "title": "Waste Collected",
+      "message": "Driver John has completed waste pickup of weight 0.9 tons.",
+      "type": "success",
+      "read": true,
+      "createdAt": "2026-07-27T05:04:52.743Z",
+      "id": "not-1785128692743-533"
+    },
+    {
+      "userId": "user-operator",
+      "title": "Incoming Waste Load",
+      "message": "Driver is delivering 0.9 tons of Recyclable waste to processing.",
+      "type": "info",
+      "read": true,
+      "createdAt": "2026-07-27T05:04:52.746Z",
+      "id": "not-1785128692746-709"
+    },
+    {
+      "userId": "user-admin",
+      "title": "New Complaint Ticket Raised",
+      "message": "Generator raised complaint on request req-2: \"fzddg\"",
+      "type": "warning",
+      "read": true,
+      "createdAt": "2026-08-03T09:43:28.832Z",
+      "id": "not-1785750208832-623"
+    },
+    {
+      "userId": "user-admin",
+      "title": "New Waste Pickup Request",
+      "message": "Generator raised a pickup request for 0.8 tons of Recyclable waste.",
+      "type": "info",
+      "read": true,
+      "createdAt": "2026-08-03T09:49:00.273Z",
+      "id": "not-1785750540273-677"
+    },
+    {
+      "userId": "user-driver2",
+      "title": "New Trip Assignment",
+      "message": "You have been assigned to pickup request req-1785750540264-254.",
+      "type": "info",
+      "read": true,
+      "createdAt": "2026-08-03T10:06:53.944Z",
+      "id": "not-1785751613945-133"
+    },
+    {
+      "userId": "user-generator",
+      "title": "Vehicle Assigned",
+      "message": "A collection vehicle (veh-2) has been dispatched for scheduled date 2036-09-09.",
+      "type": "success",
+      "read": true,
+      "createdAt": "2026-08-03T10:06:53.947Z",
+      "id": "not-1785751613947-831"
+    },
+    {
+      "userId": "user-admin",
+      "title": "New Waste Pickup Request",
+      "message": "Generator raised a pickup request for 1.4 tons of Organic waste.",
+      "type": "info",
+      "read": true,
+      "createdAt": "2026-08-10T06:51:11.460Z",
+      "id": "not-1786344671460-762"
+    },
+    {
+      "userId": "user-driver",
+      "title": "New Trip Assignment",
+      "message": "You have been assigned to pickup request req-1786344671455-457.",
+      "type": "info",
+      "read": false,
+      "createdAt": "2026-08-10T06:54:22.886Z",
+      "id": "not-1786344862886-246"
+    },
+    {
+      "userId": "user-generator",
+      "title": "Vehicle Assigned",
+      "message": "A collection vehicle (veh-2) has been dispatched for scheduled date 11111-11-11.",
+      "type": "success",
+      "read": true,
+      "createdAt": "2026-08-10T06:54:22.889Z",
+      "id": "not-1786344862889-732"
+    },
+    {
+      "userId": "user-generator",
+      "title": "Waste Collected",
+      "message": "Driver John has completed waste pickup of weight 0.3 tons.",
+      "type": "success",
+      "read": true,
+      "createdAt": "2026-08-10T06:56:21.987Z",
+      "id": "not-1786344981987-12"
+    },
+    {
+      "userId": "user-operator",
+      "title": "Incoming Waste Load",
+      "message": "Driver is delivering 0.3 tons of Organic waste to processing.",
+      "type": "info",
+      "read": true,
+      "createdAt": "2026-08-10T06:56:21.991Z",
+      "id": "not-1786344981991-96"
+    },
+    {
+      "userId": "user-generator",
+      "title": "Complaint Resolved",
+      "message": "Support Ticket \"fzddg\" has been marked as resolved: \"ghcghjkl;lkjbv\"",
+      "type": "success",
+      "read": true,
+      "createdAt": "2026-08-12T04:20:35.352Z",
+      "id": "not-1786508435353-704"
+    },
+    {
+      "userId": "user-admin",
+      "title": "New Waste Pickup Request",
+      "message": "Generator raised a pickup request for 1 tons of Organic waste. Total Fee: ₹60 (Distance: 0 km).",
+      "type": "info",
+      "read": true,
+      "createdAt": "2026-08-12T05:43:01.660Z",
+      "id": "not-1786513381660-710"
+    },
+    {
+      "userId": "user-driver2",
+      "title": "New Trip Assignment",
+      "message": "You have been assigned to pickup request req-1786513381654-446.",
+      "type": "info",
+      "read": true,
+      "createdAt": "2026-08-12T09:09:11.174Z",
+      "id": "not-1786525751174-456"
+    },
+    {
+      "userId": "user-generator",
+      "title": "Vehicle Assigned",
+      "message": "A collection vehicle (veh-2) has been dispatched for scheduled date 1111-11-11.",
+      "type": "success",
+      "read": true,
+      "createdAt": "2026-08-12T09:09:11.179Z",
+      "id": "not-1786525751179-12"
+    },
+    {
+      "userId": "user-generator",
+      "title": "Waste Collected",
+      "message": "Driver John has completed waste pickup of weight 6 tons.",
+      "type": "success",
+      "read": true,
+      "createdAt": "2026-08-12T09:15:41.693Z",
+      "id": "not-1786526141693-173"
+    },
+    {
+      "userId": "user-operator",
+      "title": "Incoming Waste Load",
+      "message": "Driver is delivering 6 tons of Organic waste to processing.",
+      "type": "info",
+      "read": true,
+      "createdAt": "2026-08-12T09:15:41.697Z",
+      "id": "not-1786526141697-961"
+    },
+    {
+      "userId": "user-generator",
+      "title": "Waste Collected",
+      "message": "Driver John has completed waste pickup of weight 0.8 tons.",
+      "type": "success",
+      "read": true,
+      "createdAt": "2026-08-12T09:20:06.904Z",
+      "id": "not-1786526406904-268"
+    },
+    {
+      "userId": "user-operator",
+      "title": "Incoming Waste Load",
+      "message": "Driver is delivering 0.8 tons of Recyclable waste to processing.",
+      "type": "info",
+      "read": true,
+      "createdAt": "2026-08-12T09:20:06.908Z",
+      "id": "not-1786526406908-311"
+    },
+    {
+      "userId": "user-generator",
+      "title": "Waste Collected",
+      "message": "Driver John has completed waste pickup of weight 1.2 tons.",
+      "type": "success",
+      "read": true,
+      "createdAt": "2026-08-12T09:53:39.886Z",
+      "id": "not-1786528419886-152"
+    },
+    {
+      "userId": "user-operator",
+      "title": "Incoming Waste Load",
+      "message": "Driver is delivering 1.2 tons of Recyclable waste to processing.",
+      "type": "info",
+      "read": true,
+      "createdAt": "2026-08-12T09:53:39.892Z",
+      "id": "not-1786528419892-957"
+    },
+    {
+      "userId": "user-admin",
+      "title": "New Registration Approval Required",
+      "message": "Waste Generator \"vishva\" registered and requires activation approval.",
+      "type": "warning",
+      "read": true,
+      "createdAt": "2026-08-14T04:40:52.018Z",
+      "id": "not-1786682452018-383"
+    },
+    {
+      "userId": "use-1786682452010-960",
+      "title": "Account Approved",
+      "message": "Your property registration has been verified and your account is active!",
+      "type": "success",
+      "read": false,
+      "createdAt": "2026-08-14T04:41:04.445Z",
+      "id": "not-1786682464445-44"
+    },
+    {
+      "userId": "user-admin",
+      "title": "New Waste Pickup Request",
+      "message": "Generator raised a pickup request for 1.8 tons of Organic waste. Total Fee: ₹155 (Distance: 6.8 km).",
+      "type": "info",
+      "read": true,
+      "createdAt": "2026-08-14T04:41:49.949Z",
+      "id": "not-1786682509949-817"
+    },
+    {
+      "userId": "use-1786682452010-960",
+      "title": "Payment Received",
+      "message": "Your payment of $155 was received. Invoice generated.",
+      "type": "success",
+      "read": false,
+      "createdAt": "2026-08-14T04:42:24.535Z",
+      "id": "not-1786682544535-155"
+    },
+    {
+      "userId": "user-admin",
+      "title": "Revenue Collected",
+      "message": "Generator paid $155 for request req-1786682509946-61.",
+      "type": "info",
+      "read": true,
+      "createdAt": "2026-08-14T04:42:24.538Z",
+      "id": "not-1786682544538-934"
+    },
+    {
+      "userId": "user-driver",
+      "title": "New Trip Assignment",
+      "message": "You have been assigned to pickup request req-1786682509946-61.",
+      "type": "info",
+      "read": false,
+      "createdAt": "2026-08-14T04:48:00.638Z",
+      "id": "not-1786682880638-790"
+    },
+    {
+      "userId": "use-1786682452010-960",
+      "title": "Vehicle Assigned",
+      "message": "A collection vehicle (veh-2) has been dispatched for scheduled date 1111-11-11.",
+      "type": "success",
+      "read": false,
+      "createdAt": "2026-08-14T04:48:00.641Z",
+      "id": "not-1786682880641-241"
+    },
+    {
+      "userId": "user-generator",
+      "title": "Waste Collected",
+      "message": "Driver John has completed waste pickup of weight 1.7 tons.",
+      "type": "success",
+      "read": true,
+      "createdAt": "2026-08-14T04:58:55.175Z",
+      "id": "not-1786683535175-801"
+    },
+    {
+      "userId": "user-operator",
+      "title": "Incoming Waste Load",
+      "message": "Driver is delivering 1.7 tons of Other waste to processing.",
+      "type": "info",
+      "read": false,
+      "createdAt": "2026-08-14T04:58:55.180Z",
+      "id": "not-1786683535180-831"
+    },
+    {
+      "userId": "user-admin",
+      "title": "New Registration Approval Required",
+      "message": "Waste Generator \"Adarsh Salian\" registered and requires activation approval.",
+      "type": "warning",
+      "read": true,
+      "createdAt": "2026-08-18T04:52:16.028Z",
+      "id": "not-1787028736028-220"
+    },
+    {
+      "userId": "use-1787028736024-323",
+      "title": "Account Approved",
+      "message": "Your property registration has been verified and your account is active!",
+      "type": "success",
+      "read": false,
+      "createdAt": "2026-08-18T04:52:37.956Z",
+      "id": "not-1787028757956-962"
+    },
+    {
+      "userId": "user-admin",
+      "title": "New Waste Pickup Request",
+      "message": "Generator raised a pickup request for 0.8 tons of Recyclable waste. Total Fee: ₹104 (Distance: 5.8 km).",
+      "type": "info",
+      "read": true,
+      "createdAt": "2026-08-18T04:53:34.989Z",
+      "id": "not-1787028814989-710"
+    },
+    {
+      "userId": "user-admin",
+      "title": "New Waste Pickup Request",
+      "message": "Generator raised a pickup request for 1.1 tons of Organic waste. Total Fee: ₹133 (Distance: 5.8 km).",
+      "type": "info",
+      "read": true,
+      "createdAt": "2026-08-18T04:53:55.315Z",
+      "id": "not-1787028835315-335"
+    },
+    {
+      "userId": "user-driver2",
+      "title": "New Trip Assignment & Funds",
+      "message": "Assigned to pickup request req-1787028814768-533. Admin dispatched ₹104 cash/wallet funds for purchasing recyclable/valuable waste from user at destination weight scale.",
+      "type": "info",
+      "read": true,
+      "createdAt": "2026-08-18T04:56:00.446Z",
+      "id": "not-1787028960446-767"
+    },
+    {
+      "userId": "use-1787028736024-323",
+      "title": "Vehicle Dispatched",
+      "message": "Collection vehicle (veh-2) dispatched for scheduled date 1111-11-11.",
+      "type": "success",
+      "read": false,
+      "createdAt": "2026-08-18T04:56:00.448Z",
+      "id": "not-1787028960448-792"
+    },
+    {
+      "userId": "use-1787028736024-323",
+      "title": "Waste Weighed & Payout Received",
+      "message": "Driver weighed 1.4 tons of Recyclable waste and paid you ₹56 payout!",
+      "type": "success",
+      "read": false,
+      "createdAt": "2026-08-18T04:56:17.513Z",
+      "id": "not-1787028977513-845"
+    },
+    {
+      "userId": "user-operator",
+      "title": "Incoming Waste Load",
+      "message": "Driver is delivering 1.4 tons of Recyclable waste to processing.",
+      "type": "info",
+      "read": false,
+      "createdAt": "2026-08-18T04:56:17.515Z",
+      "id": "not-1787028977515-514"
+    },
+    {
+      "userId": "user-admin",
+      "title": "New Driver Leave Request",
+      "message": "Driver Jane Smith (Transporter) submitted a Emergency leave request (11111-11-11 to 1111-11-12) for approval.",
+      "type": "warning",
+      "read": true,
+      "createdAt": "2026-08-18T05:10:45.324Z",
+      "id": "not-1787029845324-0"
+    },
+    {
+      "userId": "user-driver2",
+      "title": "Leave Request Approved",
+      "message": "Your leave application from 11111-11-11 to 1111-11-12 has been approved by Admin. Remark: rrdtyfughijop",
+      "type": "success",
+      "read": true,
+      "createdAt": "2026-08-18T05:11:59.421Z",
+      "id": "not-1787029919421-45"
+    },
+    {
+      "userId": "user-admin",
+      "title": "New Driver Leave Request",
+      "message": "Driver Jane Smith (Transporter) submitted a Casual leave request (243431-12-12 to 21334-11-21) for approval.",
+      "type": "warning",
+      "read": true,
+      "createdAt": "2026-08-18T05:12:25.506Z",
+      "id": "not-1787029945506-682"
+    },
+    {
+      "userId": "user-driver2",
+      "title": "Leave Request Rejected",
+      "message": "Your leave application from 243431-12-12 to 21334-11-21 has been rejected by Admin. Remark: kgiy",
+      "type": "danger",
+      "read": true,
+      "createdAt": "2026-08-18T05:12:39.882Z",
+      "id": "not-1787029959882-902"
+    }
+  ],
+  "activities": [
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-07-15T04:55:57.917Z",
+      "id": "act-1784091357917-946"
+    },
+    {
+      "userId": "user-driver",
+      "userName": "John Doe (Transporter)",
+      "userRole": "Driver",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-07-15T04:56:29.691Z",
+      "id": "act-1784091389691-75"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-07-15T05:36:49.196Z",
+      "id": "act-1784093809196-914"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-07-15T05:48:57.360Z",
+      "id": "act-1784094537360-485"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-07-15T05:49:41.191Z",
+      "id": "act-1784094581191-279"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-07-15T06:03:42.391Z",
+      "id": "act-1784095422391-590"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-07-15T06:20:35.075Z",
+      "id": "act-1784096435075-479"
+    },
+    {
+      "userId": "user-generator",
+      "userName": "Greenwood Residential Society",
+      "userRole": "Generator",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-07-15T06:33:16.712Z",
+      "id": "act-1784097196712-944"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-07-15T06:35:10.578Z",
+      "id": "act-1784097310578-953"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-07-15T06:36:44.348Z",
+      "id": "act-1784097404348-908"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-07-15T06:46:58.963Z",
+      "id": "act-1784098018963-384"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-07-15T06:49:35.226Z",
+      "id": "act-1784098175226-491"
+    },
+    {
+      "userId": "user-generator",
+      "userName": "Greenwood Residential Society",
+      "userRole": "Generator",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-07-15T06:51:00.502Z",
+      "id": "act-1784098260502-955"
+    },
+    {
+      "userId": "user-generator",
+      "userName": "Greenwood Residential Society",
+      "userRole": "Generator",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-07-17T06:30:22.825Z",
+      "id": "act-1784269822825-906"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-07-20T06:03:35.780Z",
+      "id": "act-1784527415780-223"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-07-20T06:05:42.395Z",
+      "id": "act-1784527542395-367"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-07-21T04:35:54.372Z",
+      "id": "act-1784608554372-365"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-07-21T04:39:57.684Z",
+      "id": "act-1784608797684-65"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-07-21T04:43:50.178Z",
+      "id": "act-1784609030178-203"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-07-21T04:47:27.254Z",
+      "id": "act-1784609247254-417"
+    },
+    {
+      "userId": "user-generator",
+      "userName": "Greenwood Residential Society",
+      "userRole": "Generator",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-07-21T04:52:52.950Z",
+      "id": "act-1784609572950-921"
+    },
+    {
+      "userId": "user-driver",
+      "userName": "John Doe (Transporter)",
+      "userRole": "Driver",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-07-21T04:59:27.416Z",
+      "id": "act-1784609967416-867"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-07-21T05:18:16.772Z",
+      "id": "act-1784611096772-645"
+    },
+    {
+      "userId": "user-generator",
+      "userName": "Greenwood Residential Society",
+      "userRole": "Generator",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-07-21T05:24:53.901Z",
+      "id": "act-1784611493901-31"
+    },
+    {
+      "userId": "use-1784611651779-277",
+      "userName": "mahesh",
+      "userRole": "Generator",
+      "action": "Register",
+      "details": "New user \"mahesh\" registered with role \"Generator\".",
+      "createdAt": "2026-07-21T05:27:31.782Z",
+      "id": "act-1784611651782-74"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-07-21T05:27:59.572Z",
+      "id": "act-1784611679572-699"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-07-21T05:30:03.982Z",
+      "id": "act-1784611803982-566"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Approve User",
+      "details": "Approved user \"mahesh\" (ID: use-1784611651779-277).",
+      "createdAt": "2026-07-21T05:35:01.241Z",
+      "id": "act-1784612101241-670"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-07-21T05:39:01.375Z",
+      "id": "act-1784612341375-717"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-07-22T04:07:09.452Z",
+      "id": "act-1784693229452-121"
+    },
+    {
+      "userId": "user-generator",
+      "userName": "Greenwood Residential Society",
+      "userRole": "Generator",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-07-22T04:17:24.416Z",
+      "id": "act-1784693844416-661"
+    },
+    {
+      "userId": "user-generator",
+      "userName": "Greenwood Residential Society",
+      "userRole": "Generator",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-07-22T04:20:31.633Z",
+      "id": "act-1784694031633-568"
+    },
+    {
+      "userId": "user-driver",
+      "userName": "John Doe (Transporter)",
+      "userRole": "Driver",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-07-22T04:26:18.504Z",
+      "id": "act-1784694378504-81"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-07-22T04:26:40.107Z",
+      "id": "act-1784694400107-477"
+    },
+    {
+      "userId": "user-generator",
+      "userName": "Greenwood Residential Society",
+      "userRole": "Generator",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-07-22T04:28:19.944Z",
+      "id": "act-1784694499944-711"
+    },
+    {
+      "userId": "user-generator",
+      "userName": "Greenwood Residential Society",
+      "userRole": "Generator",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-07-22T04:31:03.131Z",
+      "id": "act-1784694663131-588"
+    },
+    {
+      "userId": "user-generator",
+      "userName": "Greenwood Residential Society",
+      "userRole": "Generator",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-07-22T04:35:39.400Z",
+      "id": "act-1784694939400-457"
+    },
+    {
+      "userId": "user-generator",
+      "userName": "Greenwood Residential Society",
+      "userRole": "Generator",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-07-22T04:42:53.819Z",
+      "id": "act-1784695373819-450"
+    },
+    {
+      "userId": "use-1784695776240-849",
+      "userName": "shravan a b c d",
+      "userRole": "Generator",
+      "action": "Register",
+      "details": "New user \"shravan a b c d\" registered with role \"Generator\".",
+      "createdAt": "2026-07-22T04:49:36.240Z",
+      "id": "act-1784695776240-503"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-07-22T04:49:58.819Z",
+      "id": "act-1784695798819-723"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Approve User",
+      "details": "Approved user \"shravan a b c d\" (ID: use-1784695776240-849).",
+      "createdAt": "2026-07-22T04:50:13.191Z",
+      "id": "act-1784695813191-925"
+    },
+    {
+      "userId": "use-1784695776240-849",
+      "userName": "shravan a b c d",
+      "userRole": "Generator",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-07-22T04:50:25.376Z",
+      "id": "act-1784695825376-297"
+    },
+    {
+      "userId": "user-generator",
+      "userName": "Greenwood Residential Society",
+      "userRole": "Generator",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-07-22T04:58:00.367Z",
+      "id": "act-1784696280367-16"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-07-22T05:13:30.013Z",
+      "id": "act-1784697210013-936"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-07-27T04:59:23.969Z",
+      "id": "act-1785128363969-804"
+    },
+    {
+      "userId": "user-driver",
+      "userName": "John Doe (Transporter)",
+      "userRole": "Driver",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-07-27T04:59:36.251Z",
+      "id": "act-1785128376251-106"
+    },
+    {
+      "userId": "user-driver",
+      "userName": "John Doe (Transporter)",
+      "userRole": "Driver",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-07-27T05:12:12.424Z",
+      "id": "act-1785129132424-378"
+    },
+    {
+      "userId": "user-driver",
+      "userName": "John Doe (Transporter)",
+      "userRole": "Driver",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-07-27T05:19:16.487Z",
+      "id": "act-1785129556487-604"
+    },
+    {
+      "userId": "user-driver",
+      "userName": "John Doe (Transporter)",
+      "userRole": "Driver",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-07-27T06:25:40.140Z",
+      "id": "act-1785133540140-898"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-07-27T06:31:04.071Z",
+      "id": "act-1785133864071-588"
+    },
+    {
+      "userId": "user-generator",
+      "userName": "Greenwood Residential Society",
+      "userRole": "Generator",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-07-29T06:19:03.071Z",
+      "id": "act-1785305943071-393"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-07-29T08:43:22.964Z",
+      "id": "act-1785314602964-180"
+    },
+    {
+      "userId": "user-generator",
+      "userName": "Greenwood Residential Society",
+      "userRole": "Generator",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-07-29T09:01:59.980Z",
+      "id": "act-1785315719980-804"
+    },
+    {
+      "userId": "user-generator",
+      "userName": "Greenwood Residential Society",
+      "userRole": "Generator",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-07-30T09:26:17.458Z",
+      "id": "act-1785403577458-694"
+    },
+    {
+      "userId": "user-driver",
+      "userName": "John Doe (Transporter)",
+      "userRole": "Driver",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-07-30T09:26:44.816Z",
+      "id": "act-1785403604816-231"
+    },
+    {
+      "userId": "user-driver",
+      "userName": "John Doe (Transporter)",
+      "userRole": "Driver",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-03T09:27:53.080Z",
+      "id": "act-1785749273080-112"
+    },
+    {
+      "userId": "user-generator",
+      "userName": "Greenwood Residential Society",
+      "userRole": "Generator",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-03T09:28:11.346Z",
+      "id": "act-1785749291346-327"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-03T09:47:56.321Z",
+      "id": "act-1785750476321-649"
+    },
+    {
+      "userId": "user-generator",
+      "userName": "Greenwood Residential Society",
+      "userRole": "Generator",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-03T09:48:21.404Z",
+      "id": "act-1785750501404-828"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-03T09:49:15.988Z",
+      "id": "act-1785750555988-717"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-04T09:03:17.580Z",
+      "id": "act-1785834197580-266"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-05T04:30:10.206Z",
+      "id": "act-1785904210206-439"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-10T04:09:56.842Z",
+      "id": "act-1786334996842-895"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-10T04:17:18.148Z",
+      "id": "act-1786335438149-655"
+    },
+    {
+      "userId": "user-generator",
+      "userName": "Greenwood Residential Society",
+      "userRole": "Generator",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-10T04:19:47.361Z",
+      "id": "act-1786335587361-823"
+    },
+    {
+      "userId": "user-driver",
+      "userName": "John Doe (Transporter)",
+      "userRole": "Driver",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-10T04:26:09.917Z",
+      "id": "act-1786335969917-322"
+    },
+    {
+      "userId": "user-generator",
+      "userName": "Greenwood Residential Society",
+      "userRole": "Generator",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-10T04:40:35.548Z",
+      "id": "act-1786336835548-516"
+    },
+    {
+      "userId": "user-generator",
+      "userName": "Greenwood Residential Society",
+      "userRole": "Generator",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-10T04:41:24.971Z",
+      "id": "act-1786336884971-416"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-10T04:49:31.727Z",
+      "id": "act-1786337371727-727"
+    },
+    {
+      "userId": "user-driver",
+      "userName": "John Doe (Transporter)",
+      "userRole": "Driver",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-10T04:52:16.753Z",
+      "id": "act-1786337536753-502"
+    },
+    {
+      "userId": "user-generator",
+      "userName": "Greenwood Residential Society",
+      "userRole": "Generator",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-10T04:54:27.816Z",
+      "id": "act-1786337667816-654"
+    },
+    {
+      "userId": "user-generator",
+      "userName": "Greenwood Residential Society",
+      "userRole": "Generator",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-10T05:24:20.695Z",
+      "id": "act-1786339460695-997"
+    },
+    {
+      "userId": "user-generator",
+      "userName": "Greenwood Residential Society",
+      "userRole": "Generator",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-10T05:31:00.369Z",
+      "id": "act-1786339860369-791"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-10T06:53:19.933Z",
+      "id": "act-1786344799933-742"
+    },
+    {
+      "userId": "user-driver",
+      "userName": "John Doe (Transporter)",
+      "userRole": "Driver",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-10T06:56:00.021Z",
+      "id": "act-1786344960021-802"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-10T06:56:43.544Z",
+      "id": "act-1786345003544-421"
+    },
+    {
+      "userId": "user-generator",
+      "userName": "Greenwood Residential Society",
+      "userRole": "Generator",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-10T06:59:22.457Z",
+      "id": "act-1786345162457-757"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-10T07:03:10.766Z",
+      "id": "act-1786345390766-437"
+    },
+    {
+      "userId": "user-generator",
+      "userName": "Greenwood Residential Society",
+      "userRole": "Generator",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-12T04:15:14.939Z",
+      "id": "act-1786508114939-449"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-12T04:20:03.941Z",
+      "id": "act-1786508403941-770"
+    },
+    {
+      "userId": "user-generator",
+      "userName": "Greenwood Residential Society",
+      "userRole": "Generator",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-12T04:22:24.301Z",
+      "id": "act-1786508544301-515"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-12T04:30:04.215Z",
+      "id": "act-1786509004215-987"
+    },
+    {
+      "userId": "user-generator",
+      "userName": "Greenwood Residential Society",
+      "userRole": "Generator",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-12T04:32:45.626Z",
+      "id": "act-1786509165626-558"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-12T04:36:02.418Z",
+      "id": "act-1786509362418-984"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-12T04:37:10.752Z",
+      "id": "act-1786509430752-765"
+    },
+    {
+      "userId": "user-generator",
+      "userName": "Greenwood Residential Society",
+      "userRole": "Generator",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-12T04:48:39.005Z",
+      "id": "act-1786510119005-627"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-12T05:41:58.419Z",
+      "id": "act-1786513318419-95"
+    },
+    {
+      "userId": "user-generator",
+      "userName": "Greenwood Residential Society",
+      "userRole": "Generator",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-12T05:42:18.735Z",
+      "id": "act-1786513338735-454"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-12T05:43:15.212Z",
+      "id": "act-1786513395212-445"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Update Pricing Settings",
+      "details": "Admin updated system transport and waste pricing rates.",
+      "createdAt": "2026-08-12T06:10:20.734Z",
+      "id": "act-1786515020734-945"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-12T09:01:14.619Z",
+      "id": "act-1786525274619-249"
+    },
+    {
+      "userId": "user-driver2",
+      "userName": "Jane Smith (Transporter)",
+      "userRole": "Driver",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-12T09:13:18.563Z",
+      "id": "act-1786525998563-612"
+    },
+    {
+      "userId": "user-generator",
+      "userName": "Greenwood Residential Society",
+      "userRole": "Generator",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-12T09:36:50.855Z",
+      "id": "act-1786527410855-13"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-12T09:41:34.342Z",
+      "id": "act-1786527694342-719"
+    },
+    {
+      "userId": "user-driver2",
+      "userName": "Jane Smith (Transporter)",
+      "userRole": "Driver",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-12T09:42:12.869Z",
+      "id": "act-1786527732869-851"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-12T09:44:46.978Z",
+      "id": "act-1786527886978-872"
+    },
+    {
+      "userId": "user-driver2",
+      "userName": "Jane Smith (Transporter)",
+      "userRole": "Driver",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-12T09:53:28.054Z",
+      "id": "act-1786528408054-870"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-12T09:53:53.753Z",
+      "id": "act-1786528433753-42"
+    },
+    {
+      "userId": "user-operator",
+      "userName": "Alex Mercer (Operator)",
+      "userRole": "Operator",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-13T09:49:11.780Z",
+      "id": "act-1786614551780-132"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-13T09:50:14.958Z",
+      "id": "act-1786614614958-367"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-14T04:21:21.029Z",
+      "id": "act-1786681281029-104"
+    },
+    {
+      "userId": "user-driver",
+      "userName": "John Doe (Transporter)",
+      "userRole": "Driver",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-14T04:35:04.345Z",
+      "id": "act-1786682104346-289"
+    },
+    {
+      "userId": "use-1786682452010-960",
+      "userName": "vishva",
+      "userRole": "Generator",
+      "action": "Register",
+      "details": "New user \"vishva\" registered with role \"Generator\".",
+      "createdAt": "2026-08-14T04:40:52.014Z",
+      "id": "act-1786682452014-243"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-14T04:40:55.569Z",
+      "id": "act-1786682455569-738"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Approve User",
+      "details": "Approved user \"vishva\" (ID: use-1786682452010-960).",
+      "createdAt": "2026-08-14T04:41:04.449Z",
+      "id": "act-1786682464449-580"
+    },
+    {
+      "userId": "use-1786682452010-960",
+      "userName": "vishva",
+      "userRole": "Generator",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-14T04:41:14.294Z",
+      "id": "act-1786682474294-462"
+    },
+    {
+      "userId": "user-driver2",
+      "userName": "Jane Smith (Transporter)",
+      "userRole": "Driver",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-14T04:58:39.056Z",
+      "id": "act-1786683519056-597"
+    },
+    {
+      "userId": "user-driver2",
+      "userName": "Jane Smith (Transporter)",
+      "userRole": "Driver",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-18T04:34:44.039Z",
+      "id": "act-1787027684039-956"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-18T04:46:57.479Z",
+      "id": "act-1787028417480-235"
+    },
+    {
+      "userId": "user-driver2",
+      "userName": "Jane Smith (Transporter)",
+      "userRole": "Driver",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-18T04:47:42.806Z",
+      "id": "act-1787028462807-612"
+    },
+    {
+      "userId": "use-1787028736024-323",
+      "userName": "Adarsh Salian",
+      "userRole": "Generator",
+      "action": "Register",
+      "details": "New user \"Adarsh Salian\" registered with role \"Generator\".",
+      "createdAt": "2026-08-18T04:52:16.026Z",
+      "id": "act-1787028736026-306"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-18T04:52:21.787Z",
+      "id": "act-1787028741787-770"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Approve User",
+      "details": "Approved user \"Adarsh Salian\" (ID: use-1787028736024-323).",
+      "createdAt": "2026-08-18T04:52:37.958Z",
+      "id": "act-1787028757958-393"
+    },
+    {
+      "userId": "use-1787028736024-323",
+      "userName": "Adarsh Salian",
+      "userRole": "Generator",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-18T04:52:47.371Z",
+      "id": "act-1787028767371-66"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-18T04:55:06.084Z",
+      "id": "act-1787028906084-558"
+    },
+    {
+      "userId": "user-driver2",
+      "userName": "Jane Smith (Transporter)",
+      "userRole": "Driver",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-18T04:56:06.346Z",
+      "id": "act-1787028966346-272"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-18T05:10:56.443Z",
+      "id": "act-1787029856443-550"
+    },
+    {
+      "userId": "user-driver2",
+      "userName": "Jane Smith (Transporter)",
+      "userRole": "Driver",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-18T05:12:04.734Z",
+      "id": "act-1787029924734-957"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-18T05:12:30.381Z",
+      "id": "act-1787029950381-241"
+    },
+    {
+      "userId": "user-driver2",
+      "userName": "Jane Smith (Transporter)",
+      "userRole": "Driver",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-18T05:12:51.095Z",
+      "id": "act-1787029971095-599"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-18T05:37:38.682Z",
+      "id": "act-1787031458682-726"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-18T05:41:29.923Z",
+      "id": "act-1787031689923-415"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Create Marketplace Item",
+      "details": "Listed item \"gcjgckh\" for ₹6666 in category Electronics.",
+      "createdAt": "2026-08-18T05:45:08.174Z",
+      "id": "act-1787031908174-592"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Create Marketplace Item",
+      "details": "Listed item \"bdsiskbjc\" for ₹4637864 in category Electronics.",
+      "createdAt": "2026-08-19T04:40:25.223Z",
+      "id": "act-1787114425223-888"
+    },
+    {
+      "userId": "user-generator",
+      "userName": "Greenwood Residential Society",
+      "userRole": "Generator",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-19T04:41:08.075Z",
+      "id": "act-1787114468076-953"
+    },
+    {
+      "userId": "user-generator",
+      "userName": "Greenwood Residential Society",
+      "userRole": "Generator",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-19T04:44:26.857Z",
+      "id": "act-1787114666857-183"
+    },
+    {
+      "userId": "user-admin",
+      "userName": "System Administrator",
+      "userRole": "Admin",
+      "action": "Login",
+      "details": "User successfully logged in.",
+      "createdAt": "2026-08-19T05:02:41.609Z",
+      "id": "act-1787115761609-812"
+    }
+  ],
+  "settings": [
+    {
+      "id": "pricing-config",
+      "baseHubLocation": {
+        "name": "Malpe, Udupi",
+        "lat": 13.3556,
+        "lng": 74.7042
+      },
+      "freeTransportKm": 1,
+      "perKmTransportRate": 15,
+      "organicWasteBaseRate": 50,
+      "organicPickupWeightRate": 10,
+      "recyclableRate": 40,
+      "hazardousRate": 100,
+      "constructionRate": 75,
+      "ewasteRate": 120,
+      "otherRate": 60
+    }
+  ],
+  "driverLeaves": [
+    {
+      "driverId": "user-driver2",
+      "driverName": "Jane Smith (Transporter)",
+      "leaveType": "Emergency",
+      "startDate": "11111-11-11",
+      "endDate": "1111-11-12",
+      "reason": "rsydyififitdrses67fyi576tfyuh",
+      "prescriptionDoc": null,
+      "status": "Approved",
+      "submittedAt": "2026-08-18T05:10:45.320Z",
+      "id": "dri-1787029845320-590",
+      "adminComment": "rrdtyfughijop",
+      "reviewedAt": "2026-08-18T05:11:59.415Z"
+    },
+    {
+      "driverId": "user-driver2",
+      "driverName": "Jane Smith (Transporter)",
+      "leaveType": "Casual",
+      "startDate": "243431-12-12",
+      "endDate": "21334-11-21",
+      "reason": "ghj",
+      "prescriptionDoc": null,
+      "status": "Rejected",
+      "submittedAt": "2026-08-18T05:12:25.501Z",
+      "id": "dri-1787029945501-516",
+      "adminComment": "kgiy",
+      "reviewedAt": "2026-08-18T05:12:39.876Z"
+    }
+  ],
+  "marketplaceItems": [
+    {
+      "id": "item-elec-1",
+      "sellerId": "user-admin",
+      "sellerName": "System Administrator",
+      "sellerRole": "Admin",
+      "title": "Dell UltraSharp 27-Inch 4K UHD Monitor",
+      "category": "Electronics",
+      "price": 22500,
+      "location": "Udupi Tech Park",
+      "condition": "Used - Like New",
+      "description": "27-inch IPS panel with 99% sRGB color accuracy, USB-C hub connectivity, and adjustable ergonomic stand. Perfect for waste monitoring & CAD office setup.",
+      "contactPhone": "+91 9876543210",
+      "imageUrl": "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=800&auto=format&fit=crop&q=80",
+      "status": "Available",
+      "createdAt": "2026-08-19T04:40:25.217Z"
+    },
+    {
+      "id": "item-veh-1",
+      "sellerId": "user-admin",
+      "sellerName": "System Administrator",
+      "sellerRole": "Admin",
+      "title": "Tata Ace Gold Commercial Pickup Truck (Diesel)",
+      "category": "Vehicles",
+      "price": 380000,
+      "location": "Malpe Port Industrial Area",
+      "condition": "Used - Good",
+      "description": "Well-maintained 2022 mini-truck with heavy-duty leaf springs, 750kg payload capacity, and valid fitness certificate until 2028. Ideal for waste collection dispatches.",
+      "contactPhone": "+91 9876543210",
+      "imageUrl": "https://images.unsplash.com/photo-1559297434-fae8a1916a79?w=800&auto=format&fit=crop&q=80",
+      "status": "Available",
+      "createdAt": "2026-08-19T04:45:00.000Z"
+    },
+    {
+      "id": "item-eq-1",
+      "sellerId": "user-admin",
+      "sellerName": "System Administrator",
+      "sellerRole": "Admin",
+      "title": "Industrial Hydraulic Paper & Plastic Baler Machine",
+      "category": "Equipment",
+      "price": 145000,
+      "location": "Manipal Industrial Zone",
+      "condition": "Used - Like New",
+      "description": "High-capacity 15-ton hydraulic baling press machine for compressing cardboard, PET bottles, and plastic film into dense commercial transport bales.",
+      "contactPhone": "+91 9876543210",
+      "imageUrl": "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=800&auto=format&fit=crop&q=80",
+      "status": "Available",
+      "createdAt": "2026-08-19T04:50:00.000Z"
+    },
+    {
+      "id": "item-rec-1",
+      "sellerId": "user-admin",
+      "sellerName": "System Administrator",
+      "sellerRole": "Admin",
+      "title": "Sorted Baled HDPE Plastic Granules (500 KG Bulk Lot)",
+      "category": "Recyclables",
+      "price": 35000,
+      "location": "City Recycling Hub",
+      "condition": "Brand New",
+      "description": "Washed, double-sorted High-Density Polyethylene (HDPE) regrind flakes ready for plastic pipe & container manufacturing extrusion.",
+      "contactPhone": "+91 9876543210",
+      "imageUrl": "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?w=800&auto=format&fit=crop&q=80",
+      "status": "Available",
+      "createdAt": "2026-08-19T04:52:00.000Z"
+    },
+    {
+      "id": "item-elec-2",
+      "sellerId": "user-admin",
+      "sellerName": "System Administrator",
+      "sellerRole": "Admin",
+      "title": "Bosch Heavy Duty Cordless Industrial Drill Kit",
+      "category": "Electronics",
+      "price": 8500,
+      "location": "Udupi Central",
+      "condition": "Brand New",
+      "description": "18V Lithium-Ion brushless hammer drill with 2 batteries, fast charger, and heavy-duty carrying case.",
+      "contactPhone": "+91 9876543210",
+      "imageUrl": "https://images.unsplash.com/photo-1504148455328-c376907d081c?w=800&auto=format&fit=crop&q=80",
+      "status": "Available",
+      "createdAt": "2026-08-19T04:54:00.000Z"
+    }
+  ]
+}

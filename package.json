@@ -1,0 +1,14 @@
+{
+  "name": "bulk-waste-management-system",
+  "version": "1.0.0",
+  "description": "A comprehensive bulk waste management system built with React and Node.js.",
+  "scripts": {
+    "install-all": "npm install && npm install --prefix backend && npm install --prefix frontend --legacy-peer-deps",
+    "server": "npm run start --prefix backend",
+    "client": "npm run dev --prefix frontend",
+    "dev": "concurrently \"npm run server\" \"npm run client\""
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.3"
+  }
+}
