@@ -171,6 +171,23 @@ input:focus, select:focus, textarea:focus {
 }
 select option { background: #0d1a12; color: var(--text-primary); }
 
+input[type="date"] {
+  cursor: pointer;
+  position: relative;
+  color-scheme: dark;
+}
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  filter: invert(0.8) sepia(100%) saturate(300%) hue-rotate(90deg);
+  opacity: 0.9;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+  padding: 4px;
+}
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+  transform: scale(1.2);
+}
+
 /* ─── Buttons ────────────────────────────────────────────── */
 button {
   cursor: pointer;
@@ -221,6 +238,62 @@ button {
   transform: translateY(-1px);
 }
 
+/* ─── Standard Fixed UI Button Utilities ────────────────── */
+.btn-action-sm {
+  height: 32px !important;
+  padding: 0 12px !important;
+  font-size: 0.75rem !important;
+  font-weight: 700 !important;
+  border-radius: 8px !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  box-sizing: border-box !important;
+  cursor: pointer !important;
+  text-align: center !important;
+}
+
+.btn-action-md {
+  height: 38px !important;
+  padding: 0 16px !important;
+  font-size: 0.825rem !important;
+  font-weight: 700 !important;
+  border-radius: 10px !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  box-sizing: border-box !important;
+  cursor: pointer !important;
+  text-align: center !important;
+}
+
+.btn-fixed-details {
+  width: 85px !important;
+  min-width: 85px !important;
+  max-width: 85px !important;
+}
+
+.btn-fixed-track {
+  width: 85px !important;
+  min-width: 85px !important;
+  max-width: 85px !important;
+}
+
+.btn-fixed-billing {
+  width: 155px !important;
+  min-width: 155px !important;
+  max-width: 155px !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
 /* ─── Gradient Text ──────────────────────────────────────── */
 .text-gradient {
   background: linear-gradient(135deg, #00e676, #18ffff, #40c4ff);
@@ -231,15 +304,18 @@ button {
 
 /* ─── Badges ─────────────────────────────────────────────── */
 .badge {
-  padding: 4px 12px;
-  border-radius: var(--radius-full);
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
   font-size: 0.7rem;
   font-weight: 700;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  white-space: nowrap;
   gap: 5px;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
+  max-width: fit-content;
 }
 .badge-pending {
   background: rgba(255, 171, 64, 0.12);
@@ -265,6 +341,16 @@ button {
   background: rgba(255, 82, 82, 0.1);
   color: var(--danger);
   border: 1px solid rgba(255, 82, 82, 0.3);
+}
+
+/* ─── Leaflet Map Overrides ──────────────────────────────── */
+.leaflet-container {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 360px !important;
+  background: #08120c !important;
+  border-radius: var(--radius-md);
+  z-index: 1 !important;
 }
 
 /* ─── Animations ─────────────────────────────────────────── */
@@ -297,32 +383,37 @@ button {
 /* ─── Tables ─────────────────────────────────────────────── */
 .table-container {
   overflow-x: auto;
+  width: 100%;
+  max-width: 100%;
   border-radius: var(--radius-md);
   border: 1px solid rgba(0, 230, 118, 0.1);
+  background: rgba(5, 12, 9, 0.4);
+  box-sizing: border-box;
 }
 
 table {
   width: 100%;
+  min-width: 720px;
   border-collapse: separate;
   border-spacing: 0;
   text-align: left;
 }
 
 th {
-  padding: 14px 20px;
+  padding: 12px 14px;
   font-weight: 700;
   font-size: 0.7rem;
   color: var(--text-muted);
   border-bottom: 1px solid rgba(0, 230, 118, 0.08);
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  background: rgba(0, 0, 0, 0.2);
+  letter-spacing: 0.08em;
+  background: rgba(0, 0, 0, 0.25);
   white-space: nowrap;
 }
 
 td {
-  padding: 14px 20px;
-  font-size: 0.875rem;
+  padding: 12px 14px;
+  font-size: 0.85rem;
   border-bottom: 1px solid rgba(0, 230, 118, 0.05);
   color: var(--text-primary);
   background: transparent;
@@ -684,4 +775,42 @@ path[stroke="#ffffff"] { stroke: rgba(13, 26, 18, 0.5) !important; }
 .h-2\.5.rounded-full[style*="width"] {
   background: linear-gradient(90deg, var(--primary), var(--secondary)) !important;
   box-shadow: 0 0 10px rgba(0, 230, 118, 0.4);
+}
+
+/* ─── Notification Dropdown Panel (Solid Black Background) ─── */
+.notification-panel {
+  width: 420px !important;
+  max-width: 92vw !important;
+  background-color: #000000 !important;
+  background: #000000 !important;
+  border: 1px solid #262626 !important;
+  border-radius: 16px !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.95), 0 0 0 1px #171717 !important;
+  color: #ffffff !important;
+  opacity: 1 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  z-index: 9999 !important;
+}
+
+.notification-card {
+  background-color: #0a0a0a !important;
+  background: #0a0a0a !important;
+  border: 1px solid #1f1f1f !important;
+  border-radius: 12px !important;
+  opacity: 1 !important;
+  transition: all 0.2s ease;
+}
+
+.notification-card:hover {
+  background-color: #141414 !important;
+  background: #141414 !important;
+  border-color: #333333 !important;
+}
+
+.notification-card.read {
+  background-color: #050505 !important;
+  background: #050505 !important;
+  border-color: #171717 !important;
+  opacity: 0.65 !important;
 }

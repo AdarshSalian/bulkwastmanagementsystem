@@ -1,4 +1,7 @@
-const BASE_URL = 'http://localhost:5000/api';
+const BASE_URL = typeof window !== 'undefined' && window.location.hostname && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1'
+  ? `http://${window.location.hostname}:5000/api`
+  : 'http://localhost:5000/api';
+
 
 function getHeaders() {
   const token = localStorage.getItem('token');
@@ -176,15 +179,24 @@ export const api = {
     return res.json();
   },
 
-  async assignRequest(requestId, driverId, vehicleId) {
+  async assignRequest(requestId, driverId, vehicleId, dispatchedAmount) {
     const res = await fetch(`${BASE_URL}/requests/${requestId}/assign`, {
       method: 'POST',
       headers: getHeaders(),
-      body: JSON.stringify({ driverId, vehicleId })
+      body: JSON.stringify({ driverId, vehicleId, dispatchedAmount })
     });
     if (!res.ok) throw new Error('Failed to assign driver/vehicle');
     return res.json();
   },
+  async startTrip(requestId) {
+    const res = await fetch(`${BASE_URL}/requests/${requestId}/start-trip`, {
+      method: 'POST',
+      headers: getHeaders()
+    });
+    if (!res.ok) throw new Error(await res.text());
+    return res.json();
+  },
+
 
   async collectWaste(requestId, weight, wasteType, extraData = {}) {
     const res = await fetch(`${BASE_URL}/requests/${requestId}/collect`, {
@@ -291,6 +303,22 @@ export const api = {
       body: JSON.stringify(paymentDetails)
     });
     if (!res.ok) throw new Error('Failed to process payment');
+    return res.json();
+  },
+
+  async getAdminPayments() {
+    const res = await fetch(`${BASE_URL}/admin/payments`, {
+      headers: getHeaders()
+    });
+    if (!res.ok) throw new Error('Failed to fetch payments ledger');
+    return res.json();
+  },
+
+  async getAdminDrivers() {
+    const res = await fetch(`${BASE_URL}/admin/drivers`, {
+      headers: getHeaders()
+    });
+    if (!res.ok) throw new Error('Failed to fetch admin drivers management');
     return res.json();
   },
 
@@ -425,6 +453,19 @@ export const api = {
       headers: getHeaders()
     });
     if (!res.ok) throw new Error('Failed to remove item');
+    return res.json();
+  },
+
+  async buyMarketplaceItem(itemId, paymentDetails) {
+    const res = await fetch(`${BASE_URL}/marketplace/items/${itemId}/buy`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({ paymentDetails })
+    });
+    if (!res.ok) {
+      const data = await res.json();
+      throw new Error(data.message || 'Failed to complete Razorpay purchase');
+    }
     return res.json();
   }
 };

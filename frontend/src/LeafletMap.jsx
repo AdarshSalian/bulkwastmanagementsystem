@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -48,15 +48,32 @@ const isInUdupiDistrict = (lat, lng) => {
   return !isNaN(lat) && !isNaN(lng);
 };
 
-// Component to dynamically adjust map center & zoom within bounds
+// Component to dynamically adjust map center & zoom within bounds & handle modal container resize
 function ChangeMapView({ center, zoom }) {
   const map = useMap();
   useEffect(() => {
+    const invalidate = () => {
+      if (map) {
+        map.invalidateSize();
+      }
+    };
+
+    invalidate();
+    const t1 = setTimeout(invalidate, 50);
+    const t2 = setTimeout(invalidate, 200);
+    const t3 = setTimeout(invalidate, 500);
+
     if (center && center[0] && center[1] && isInUdupiDistrict(center[0], center[1])) {
       map.setView(center, zoom || 12);
     } else {
       map.setView(UDUPI_CENTER, 12);
     }
+
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+    };
   }, [center, zoom, map]);
   return null;
 }
@@ -191,10 +208,27 @@ export function LeafletMap({
 }) {
   const mapCenter = (center && center[0] && isInUdupiDistrict(center[0], center[1])) ? center : UDUPI_CENTER;
 
-  // Filter markers strictly within Udupi District
-  const udupiProperties = properties.filter(p => isInUdupiDistrict(p.lat, p.lng));
-  const udupiVehicles = vehicles.filter(v => isInUdupiDistrict(v.lat, v.lng));
-  const udupiPlants = plants.filter(pl => isInUdupiDistrict(pl.lat, pl.lng));
+  // Render markers for all valid coordinates (parsing strings to numbers cleanly)
+  const udupiProperties = properties
+    .map(p => ({ ...p, lat: parseFloat(p.lat), lng: parseFloat(p.lng) }))
+    .filter(p => !isNaN(p.lat) && !isNaN(p.lng));
+
+  const udupiVehicles = vehicles
+    .map(v => ({ ...v, lat: parseFloat(v.lat), lng: parseFloat(v.lng) }))
+    .filter(v => !isNaN(v.lat) && !isNaN(v.lng));
+
+  const udupiPlants = plants
+    .map(pl => ({ ...pl, lat: parseFloat(pl.lat), lng: parseFloat(pl.lng) }))
+    .filter(pl => !isNaN(pl.lat) && !isNaN(pl.lng));
+
+  // Compute active bounds from properties & vehicles if present
+  const allActiveCoords = [
+    ...udupiProperties.map(p => [p.lat, p.lng]),
+    ...udupiVehicles.map(v => [v.lat, v.lng])
+  ];
+  const computedCenter = (center && !isNaN(parseFloat(center[0])) && !isNaN(parseFloat(center[1])))
+    ? [parseFloat(center[0]), parseFloat(center[1])]
+    : (allActiveCoords.length > 0 ? [allActiveCoords[0][0], allActiveCoords[0][1]] : mapCenter);
 
   // Search state
   const [searchQuery, setSearchQuery] = useState('');
@@ -369,20 +403,20 @@ export function LeafletMap({
       )}
 
       <MapContainer 
-        center={mapCenter} 
+        center={computedCenter} 
         zoom={zoom} 
         minZoom={2}
         maxZoom={18}
         scrollWheelZoom={true} 
         style={{ height: '100%', width: '100%', background: '#08120c' }}
       >
-        <ChangeMapView center={mapCenter} zoom={zoom} />
+        <ChangeMapView center={computedCenter} zoom={zoom} />
         {flyTarget && <FlyToLocation target={flyTarget} />}
         
-        {/* Dark Tile Layer */}
+        {/* OpenStreetMap Tile Layer */}
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors | Udupi District GIS'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
         {pickerMode && <LocationPickerHandler onLocationSelect={onLocationSelect} />}
@@ -397,6 +431,17 @@ export function LeafletMap({
               </div>
             </Popup>
           </Marker>
+        )}
+
+        {/* Dynamic Route Navigation Line between Vehicle & Property */}
+        {udupiVehicles.length > 0 && udupiProperties.length > 0 && (
+          <Polyline 
+            positions={[
+              [udupiVehicles[0].lat, udupiVehicles[0].lng],
+              [udupiProperties[0].lat, udupiProperties[0].lng]
+            ]}
+            pathOptions={{ color: '#00e676', weight: 4, dashArray: '8, 8', opacity: 0.8 }}
+          />
         )}
 
         {/* Property Markers (Udupi District Only) */}

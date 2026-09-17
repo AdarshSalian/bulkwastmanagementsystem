@@ -1,0 +1,23 @@
+{
+  "expo": {
+    "name": "Bulk Waste User App",
+    "slug": "bulk-waste-user-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "backgroundColor": "#0a0f1e"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.bulkwaste.userapp"
+    },
+    "android": {
+      "backgroundColor": "#0a0f1e",
+      "package": "com.bulkwaste.userapp"
+    },
+    "plugins": [
+      "expo-status-bar"
+    ]
+  }
+}

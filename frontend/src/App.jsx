@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { 
   Trash2, Plus, Shield, MapPin, Truck, Activity, DollarSign, AlertCircle, CheckCircle, 
   Clock, FileText, Send, User, LogOut, Bell, FileDown, ShieldAlert, BarChart3, Settings, 
-  Navigation, RefreshCw, Layers, ShieldCheck, X, Search, Crosshair, Compass, Calendar, ShoppingBag
+  Navigation, RefreshCw, Layers, ShieldCheck, X, Search, Crosshair, Compass, Calendar, ShoppingBag,
+  CreditCard, TrendingUp
 } from 'lucide-react';
 import { api } from './api';
 import { LeafletMap } from './LeafletMap';
@@ -314,6 +315,52 @@ export default function App() {
     username: '', password: '', role: 'Driver', name: '', contact: '', email: '', organizationName: ''
   });
 
+  const isScheduledDateOrPast = (scheduledDateStr) => {
+    if (!scheduledDateStr) return true;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    let targetDate;
+    if (typeof scheduledDateStr === 'string' && scheduledDateStr.includes('-')) {
+      const parts = scheduledDateStr.split('-');
+      if (parts[0].length === 4) {
+        targetDate = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+      } else {
+        targetDate = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+      }
+    } else {
+      targetDate = new Date(scheduledDateStr);
+    }
+    if (isNaN(targetDate.getTime())) return true;
+    targetDate.setHours(0, 0, 0, 0);
+
+    return today.getTime() >= targetDate.getTime();
+  };
+
+  const getRemainingDays = (scheduledDateStr) => {
+    if (!scheduledDateStr) return 0;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    let targetDate;
+    if (typeof scheduledDateStr === 'string' && scheduledDateStr.includes('-')) {
+      const parts = scheduledDateStr.split('-');
+      if (parts[0].length === 4) {
+        targetDate = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+      } else {
+        targetDate = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+      }
+    } else {
+      targetDate = new Date(scheduledDateStr);
+    }
+    if (isNaN(targetDate.getTime())) return 0;
+    targetDate.setHours(0, 0, 0, 0);
+
+    const diffTime = targetDate.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays > 0 ? diffDays : 0;
+  };
+
   // Screen/Tab state
   const [activeTab, setActiveTab] = useState('overview');
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
@@ -332,7 +379,11 @@ export default function App() {
   // Form Fields
   const [loginFields, setLoginFields] = useState({ username: '', password: '' });
   const [regFields, setRegFields] = useState({
-    username: '', password: '', role: 'Generator', name: '', contact: '', email: '', organizationName: ''
+    username: '', password: '', role: 'Generator', name: '', contact: '', email: '', organizationName: '',
+    propertyRelationship: 'Society President / Secretary',
+    propertyHeadName: '',
+    propertyHeadContact: '',
+    authorizationLetterNote: ''
   });
   const [regFile, setRegFile] = useState(null);
   const [isRegisterMode, setIsRegisterMode] = useState(false);
@@ -342,6 +393,7 @@ export default function App() {
   const [marketplaceCategoryFilter, setMarketplaceCategoryFilter] = useState('All');
   const [marketplaceSearchQuery, setMarketplaceSearchQuery] = useState('');
   const [selectedMarketplaceItem, setSelectedMarketplaceItem] = useState(null);
+  const [marketplacePaymentItem, setMarketplacePaymentItem] = useState(null);
   const [newMarketplaceItem, setNewMarketplaceItem] = useState({
     title: '', category: 'Electronics', price: '', location: 'Udupi / Malpe', condition: 'Used - Like New', description: '', contactPhone: '+91 9876543210', imageUrl: ''
   });
@@ -361,6 +413,8 @@ export default function App() {
   const [collectCategory, setCollectCategory] = useState('');
   const [segregationInput, setSegregationInput] = useState({ organicWeight: '', recyclableWeight: '', residualWeight: '' });
   const [resolutionText, setResolutionText] = useState('');
+  const [plantDeliveries, setPlantDeliveries] = useState([]);
+  const [selectedPlantId, setSelectedPlantId] = useState('');
 
   // Fetch initial profile if token exists
   useEffect(() => {
@@ -388,14 +442,22 @@ export default function App() {
     if (!user) return;
     const interval = setInterval(() => {
       loadNotifications();
-      // Lightly refresh requests/deliveries
+      // Lightly refresh requests/deliveries & marketplace
       api.getRequests().then(setRequests).catch(console.error);
+      api.getMarketplaceItems().then(setMarketplaceItems).catch(console.error);
       if (user.role === 'Admin' || user.role === 'Driver') {
         api.getDriverLeaves().then(setDriverLeaves).catch(console.error);
       }
-    }, 15000);
+    }, 10000);
     return () => clearInterval(interval);
   }, [user]);
+
+  // Refresh marketplace items whenever marketplace tab is opened
+  useEffect(() => {
+    if (activeTab === 'marketplace') {
+      api.getMarketplaceItems().then(setMarketplaceItems).catch(console.error);
+    }
+  }, [activeTab]);
 
   const showToast = (message, type = 'info') => {
     setToast({ message, type });
@@ -444,9 +506,7 @@ export default function App() {
     } else if (currUser.role === 'Operator') {
       api.getRequests().then(setRequests).catch(console.error);
       api.getPlants().then(setPlants).catch(console.error);
-      api.getPlantDeliveries().then(d => {
-        // Use delivery list in operator views
-      }).catch(console.error);
+      api.getPlantDeliveries().then(setPlantDeliveries).catch(console.error);
     }
   };
 
@@ -518,6 +578,10 @@ export default function App() {
       fd.append('email', regFields.email.trim());
       if (regFields.role === 'Generator') {
         fd.append('organizationName', regFields.organizationName.trim());
+        fd.append('propertyRelationship', regFields.propertyRelationship || 'Owner / Property Head');
+        fd.append('propertyHeadName', (regFields.propertyHeadName || '').trim());
+        fd.append('propertyHeadContact', (regFields.propertyHeadContact || '').trim());
+        fd.append('authorizationLetterNote', (regFields.authorizationLetterNote || '').trim());
         if (regFile) {
           fd.append('document', regFile);
         }
@@ -528,7 +592,8 @@ export default function App() {
       setIsRegisterMode(false);
       // Clear forms
       setRegFields({
-        username: '', password: '', role: 'Generator', name: '', contact: '', email: '', organizationName: ''
+        username: '', password: '', role: 'Generator', name: '', contact: '', email: '', organizationName: '',
+        propertyRelationship: 'Society President / Secretary', propertyHeadName: '', propertyHeadContact: '', authorizationLetterNote: ''
       });
       setRegFile(null);
     } catch (err) {
@@ -640,40 +705,6 @@ export default function App() {
     }
   };
 
-  const handleOperatorDeliverySubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const selectedPlant = plants[0]; // Auto select first plant or let operator choose
-      if (!selectedPlant) {
-        showToast('No active processing plant available', 'error');
-        return;
-      }
-
-      const orgWeight = parseFloat(segregationInput.organicWeight) || 0;
-      const recWeight = parseFloat(segregationInput.recyclableWeight) || 0;
-      const resWeight = parseFloat(segregationInput.residualWeight) || 0;
-
-      if (orgWeight + recWeight + resWeight <= 0) {
-        showToast('Please enter measured weight for at least one segregated component', 'error');
-        return;
-      }
-
-      await api.recordPlantDelivery(selectedPlant.id, {
-        requestId: operatorRecordReq.id,
-        organicWeight: orgWeight,
-        recyclableWeight: recWeight,
-        residualWeight: resWeight
-      });
-      showToast('Delivery recorded and waste segregated successfully', 'success');
-      setOperatorRecordReq(null);
-      setSegregationInput({ organicWeight: '', recyclableWeight: '', residualWeight: '' });
-      api.getRequests().then(setRequests);
-      api.getPlants().then(setPlants);
-    } catch (err) {
-      showToast(err.message, 'error');
-    }
-  };
-
   const handleDriverLeaveSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -728,9 +759,39 @@ export default function App() {
     }
   };
 
-  const handleRazorpayCheckout = (reqItem) => {
+  const loadRazorpayScript = () => {
+    return new Promise((resolve) => {
+      if (window.Razorpay) {
+        resolve(true);
+        return;
+      }
+      const existingScript = document.querySelector('script[src*="checkout.razorpay.com"]');
+      if (existingScript) {
+        existingScript.onload = () => resolve(true);
+        existingScript.onerror = () => resolve(false);
+        // Wait up to 2 seconds if already in DOM
+        setTimeout(() => resolve(!!window.Razorpay), 1500);
+        return;
+      }
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.async = true;
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
+  const handleRazorpayCheckout = async (reqItem) => {
     const razorpayKey = 'rzp_test_SC7GZQVzAK7jRK';
     const amountInPaise = Math.round((reqItem.amount || 0) * 100);
+
+    const isLoaded = await loadRazorpayScript();
+    if (!isLoaded || !window.Razorpay) {
+      // Fallback modal if SDK script fails network load
+      setPaymentModalReq(reqItem);
+      return;
+    }
 
     // Options for Razorpay Checkout Popup
     const options = {
@@ -768,14 +829,14 @@ export default function App() {
       }
     };
 
-    if (window.Razorpay) {
+    try {
       const rzp = new window.Razorpay(options);
       rzp.on('payment.failed', function (response) {
         showToast(`Payment Failed: ${response.error.description || 'Transaction cancelled'}`, 'error');
       });
       rzp.open();
-    } else {
-      // Fallback modal if SDK script has not loaded
+    } catch (err) {
+      console.warn('Razorpay open failed, showing fallback modal:', err);
       setPaymentModalReq(reqItem);
     }
   };
@@ -790,6 +851,90 @@ export default function App() {
       showToast('Payment processed via Razorpay! Invoice generated.', 'success');
       setPaymentModalReq(null);
       api.getRequests().then(setRequests);
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  };
+
+  const handleMarketplaceRazorpayCheckout = async (item) => {
+    if (user?.role !== 'Generator') {
+      showToast('Buy option is exclusively available for User (Generator) accounts.', 'error');
+      return;
+    }
+    if (item.status === 'Sold') {
+      showToast('This item has already been sold.', 'error');
+      return;
+    }
+    const razorpayKey = 'rzp_test_SC7GZQVzAK7jRK';
+    const amountInPaise = Math.round((item.price || 0) * 100);
+
+    const isLoaded = await loadRazorpayScript();
+    if (!isLoaded || !window.Razorpay) {
+      setMarketplacePaymentItem(item);
+      return;
+    }
+
+    const options = {
+      key: razorpayKey,
+      amount: amountInPaise > 0 ? amountInPaise : 100,
+      currency: 'INR',
+      name: 'Bulk Waste OLX Marketplace',
+      description: `Purchase: ${item.title}`,
+      image: item.imageUrl || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png',
+      handler: async function (response) {
+        try {
+          const razorpayPaymentId = response.razorpay_payment_id || `pay_rzp_mkt_${Date.now()}`;
+          const result = await api.buyMarketplaceItem(item.id, {
+            paymentMethod: 'Razorpay Checkout (UPI/Card/Netbanking)',
+            transactionId: razorpayPaymentId
+          });
+          showToast(result.message || `Razorpay Payment Successful! Txn Ref: ${razorpayPaymentId}`, 'success');
+          setMarketplacePaymentItem(null);
+          setSelectedMarketplaceItem(null);
+          api.getMarketplaceItems().then(setMarketplaceItems);
+        } catch (err) {
+          showToast(err.message || 'Failed to complete Razorpay purchase', 'error');
+        }
+      },
+      prefill: {
+        name: user?.name || 'Generator Buyer',
+        email: user?.email || 'buyer@bulkwaste.com',
+        contact: user?.contact || '9876543210'
+      },
+      notes: {
+        itemId: item.id,
+        itemTitle: item.title
+      },
+      theme: {
+        color: '#2d6a4f'
+      }
+    };
+
+    try {
+      const rzp = new window.Razorpay(options);
+      rzp.on('payment.failed', function (response) {
+        showToast(`Payment Failed: ${response.error?.description || 'Transaction cancelled'}`, 'error');
+      });
+      rzp.open();
+    } catch (err) {
+      console.warn('Marketplace Razorpay open failed:', err);
+      setMarketplacePaymentItem(item);
+    }
+  };
+
+  const handleMarketplacePaymentSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      if (!marketplacePaymentItem) return;
+      const txId = `pay_razor_mkt_${Date.now()}`;
+      const result = await api.buyMarketplaceItem(marketplacePaymentItem.id, {
+        paymentMethod: 'Razorpay Online Gateway',
+        transactionId: txId
+      });
+      showToast(result.message || 'Payment processed via Razorpay! Item purchased successfully.', 'success');
+      setMarketplacePaymentItem(null);
+      setSelectedMarketplaceItem(null);
+      api.getMarketplaceItems().then(setMarketplaceItems);
     } catch (err) {
       showToast(err.message, 'error');
     }
@@ -1008,6 +1153,77 @@ export default function App() {
     }
   };
 
+  const handleOperatorDeliverySubmit = async (e) => {
+    e.preventDefault();
+    if (!operatorRecordReq) return;
+    try {
+      const org = parseFloat(segregationInput.organicWeight) || 0;
+      const rec = parseFloat(segregationInput.recyclableWeight) || 0;
+      const res = parseFloat(segregationInput.residualWeight) || 0;
+      const targetPlantId = selectedPlantId || (plants[0]?.id || 'plant-1');
+
+      if (!targetPlantId) {
+        showToast('Please select a target processing plant facility', 'error');
+        return;
+      }
+
+      const totalSeg = Math.round((org + rec + res) * 10) / 10;
+      const arrivedWeight = Math.round((parseFloat(operatorRecordReq.weight) || operatorRecordReq.wasteQuantity || 0) * 10) / 10;
+
+      if (Math.abs(totalSeg - arrivedWeight) > 0.1) {
+        showToast(`Sum of segregated weights (${totalSeg}t) must equal arrived tonnage (${arrivedWeight}t)`, 'error');
+        return;
+      }
+
+      await api.recordPlantDelivery(targetPlantId, {
+        requestId: operatorRecordReq.id,
+        organicWeight: org,
+        recyclableWeight: rec,
+        residualWeight: res
+      });
+
+      showToast(`Waste intake approved & recorded! Request ${operatorRecordReq.id.slice(-6)} Completed.`, 'success');
+      setOperatorRecordReq(null);
+      
+      // Refresh requests, plants and delivery logs
+      api.getRequests().then(setRequests);
+      api.getPlants().then(setPlants);
+      api.getPlantDeliveries().then(setPlantDeliveries);
+    } catch (err) {
+      showToast(err.message || 'Failed to record plant delivery', 'error');
+    }
+  };
+
+  const handleSimulateOperatorDelivery = async () => {
+    try {
+      showToast('Simulating transporter truck arrival at plant...', 'info');
+      // Look for an existing request to simulate
+      let targetReq = requests.find(r => r.status === 'Assigned' || r.status === 'Pending');
+      if (!targetReq) {
+        // Create a dummy request if none exists
+        const dummyProp = properties[0] || { id: 'prop-1' };
+        targetReq = await api.createRequest({
+          propertyId: dummyProp.id,
+          wasteType: 'Recyclable',
+          wasteQuantity: 5.0,
+          scheduledDate: new Date().toISOString().split('T')[0]
+        });
+      }
+      
+      // Collect waste to mark status as 'Collected' (waiting at plant gate)
+      await api.collectWaste(targetReq.id, 5.0, targetReq.wasteType || 'Recyclable', {
+        driverCollectedFromUser: targetReq.wasteType === 'Organic',
+        driverPaidToUserAmount: 2500
+      });
+
+      showToast('🚚 Transporter truck (TRK-9844 · 5.0 Tons) has arrived at the processing gate!', 'success');
+      api.getRequests().then(setRequests);
+      api.getPlants().then(setPlants);
+    } catch (err) {
+      showToast(err.message || 'Simulation error', 'error');
+    }
+  };
+
   const markNotificationsAsRead = () => {
     api.markNotificationsRead()
       .then(() => {
@@ -1107,26 +1323,56 @@ export default function App() {
               </button>
 
               {isNotificationsOpen && (
-                <div className="absolute right-0 mt-3 w-80 glass border border-white/10 rounded-2xl p-4 shadow-xl z-50 animate-fade-in">
-                  <div className="flex justify-between items-center mb-3 pb-2 border-b border-white/10">
-                    <h3 className="font-bold text-sm">Notifications</h3>
+                <div 
+                  className="notification-panel absolute right-0 mt-3 rounded-2xl p-4 animate-fade-in text-white"
+                  style={{ backgroundColor: '#000000', width: '420px', maxWidth: '92vw', opacity: 1, zIndex: 9999 }}
+                >
+                  <div className="flex justify-between items-center mb-3 pb-2.5" style={{ borderBottom: '1px solid #262626' }}>
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-bold text-sm text-white">Notifications</h3>
+                      {activeNotificationsCount > 0 && (
+                        <span className="px-2 py-0.5 text-[10px] font-bold rounded-full" style={{ backgroundColor: 'rgba(0, 230, 118, 0.15)', color: '#00e676', border: '1px solid rgba(0, 230, 118, 0.3)' }}>
+                          {activeNotificationsCount} new
+                        </span>
+                      )}
+                    </div>
                     {activeNotificationsCount > 0 && (
-                      <button onClick={markNotificationsAsRead} className="text-xs text-emerald-400 hover:text-emerald-300 font-semibold">
+                      <button onClick={markNotificationsAsRead} className="text-xs font-semibold transition-colors" style={{ color: '#00e676' }}>
                         Mark all read
                       </button>
                     )}
                   </div>
-                  <div className="max-h-60 overflow-y-auto flex flex-col gap-2.5">
+                  <div className="max-h-72 overflow-y-auto flex flex-col gap-2.5 pr-0.5">
                     {notifications.length === 0 ? (
-                      <span className="text-xs text-gray-500 text-center py-4">No notifications</span>
+                      <span className="text-xs text-neutral-500 text-center py-6">No notifications</span>
                     ) : (
                       notifications.map(n => (
-                        <div key={n.id} className={`p-2.5 rounded-xl border ${n.read ? 'bg-transparent border-white/5 opacity-60' : 'bg-white/5 border-white/10'}`}>
-                          <div className="flex justify-between items-start mb-0.5">
-                            <span className="font-semibold text-xs text-white">{n.title}</span>
-                            <span className="text-[9px] text-gray-500">{new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                        <div 
+                          key={n.id} 
+                          className={`notification-card p-3 rounded-xl ${n.read ? 'read' : ''}`}
+                          style={{
+                            backgroundColor: n.read ? '#050505' : '#0c0c0c',
+                            border: n.read ? '1px solid #171717' : '1px solid #242424',
+                            opacity: n.read ? 0.65 : 1
+                          }}
+                        >
+                          <div className="flex justify-between items-start gap-2 mb-1">
+                            <span 
+                              className="font-semibold text-xs"
+                              style={{
+                                color: n.type === 'warning' ? '#fbbf24' :
+                                       n.type === 'success' ? '#00e676' :
+                                       n.type === 'danger' ? '#f87171' :
+                                       '#ffffff'
+                              }}
+                            >
+                              {n.title}
+                            </span>
+                            <span className="text-[10px] whitespace-nowrap" style={{ color: '#737373' }}>
+                              {new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </span>
                           </div>
-                          <p className="text-[11px] text-gray-400 leading-normal">{n.message}</p>
+                          <p className="text-[11px] leading-relaxed" style={{ color: '#a3a3a3' }}>{n.message}</p>
                         </div>
                       ))
                     )}
@@ -1259,6 +1505,39 @@ export default function App() {
               {!isRegisterMode ? (
                 <form onSubmit={handleLoginSubmit} style={{display:'flex',flexDirection:'column',gap:'18px'}}>
 
+                  {/* Quick Demo Selector Chips */}
+                  <div style={{display:'flex',flexDirection:'column',gap:'6px',marginBottom:'2px'}}>
+                    <span style={{fontSize:'0.7rem',fontWeight:700,textTransform:'uppercase',letterSpacing:'0.06em',color:'#558b6e'}}>Quick Demo Accounts:</span>
+                    <div style={{display:'grid',gridTemplateColumns:'repeat(4, 1fr)',gap:'6px'}}>
+                      {[
+                        { role: 'Admin', user: 'admin', pass: 'admin', color: '#00e676' },
+                        { role: 'Generator', user: 'generator', pass: 'password', color: '#40c4ff' },
+                        { role: 'Driver', user: 'driver', pass: 'password', color: '#ffab40' },
+                        { role: 'Operator', user: 'operator', pass: 'password', color: '#b388ff' }
+                      ].map(acc => (
+                        <button
+                          key={acc.role}
+                          type="button"
+                          onClick={() => setLoginFields({ username: acc.user, password: acc.pass })}
+                          style={{
+                            padding: '6px 4px',
+                            background: loginFields.username === acc.user ? `${acc.color}25` : 'rgba(255,255,255,0.04)',
+                            border: `1px solid ${loginFields.username === acc.user ? acc.color : 'rgba(255,255,255,0.1)'}`,
+                            borderRadius: '8px',
+                            fontSize: '0.68rem',
+                            fontWeight: 700,
+                            color: loginFields.username === acc.user ? acc.color : '#cbd5e1',
+                            cursor: 'pointer',
+                            textAlign: 'center',
+                            transition: 'all 0.15s'
+                          }}
+                        >
+                          {acc.role}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
                   {/* Username */}
                   <div style={{display:'flex',flexDirection:'column',gap:'6px'}}>
                     <label style={{fontSize:'0.72rem',fontWeight:700,textTransform:'uppercase',letterSpacing:'0.08em',color:'#558b6e'}}>Username</label>
@@ -1342,12 +1621,19 @@ export default function App() {
                     </div>
                   ))}
                   <div style={{display:'flex',flexDirection:'column',gap:'5px'}}>
-                    <label style={{fontSize:'0.72rem',fontWeight:700,textTransform:'uppercase',letterSpacing:'0.08em',color:'#475569'}}>Account Role</label>
-                    <select value={regFields.role} onChange={e => setRegFields({...regFields, role: e.target.value})} style={{background:'#F8FAFC',border:'1.5px solid #E2E8F0',borderRadius:'10px',fontSize:'0.875rem',color:'#1E293B',outline:'none'}}>
-                      <option value="Generator">User (Waste Generator)</option>
-                      <option value="Driver">Transporter / Driver</option>
-                      <option value="Operator">Plant Operator</option>
-                    </select>
+                    <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                      <label style={{fontSize:'0.72rem',fontWeight:700,textTransform:'uppercase',letterSpacing:'0.08em',color:'#475569'}}>Account Role</label>
+                      <span style={{fontSize:'0.68rem',color:'#16a34a',fontWeight:700,background:'#DCFCE7',padding:'2px 8px',borderRadius:'99px',border:'1px solid #86EFAC'}}>
+                        ✅ Verified Role: User (Waste Generator)
+                      </span>
+                    </div>
+                    <div style={{background:'#F1F5F9',border:'1.5px solid #E2E8F0',borderRadius:'10px',padding:'8px 12px',fontSize:'0.82rem',color:'#334155',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+                      <span style={{fontWeight:700,color:'#1e293b'}}>👤 Waste Generator (Resident / Commercial Entity)</span>
+                      <span style={{fontSize:'0.7rem',color:'#64748B'}}>Self-Registration Only</span>
+                    </div>
+                    <p style={{fontSize:'0.68rem',color:'#64748B',margin:'0 2px'}}>
+                      Note: Transporter Drivers and Plant Operators are staff roles created directly by the System Administrator.
+                    </p>
                   </div>
                   <div style={{display:'flex',flexDirection:'column',gap:'5px'}}>
                     <label style={{fontSize:'0.72rem',fontWeight:700,textTransform:'uppercase',letterSpacing:'0.08em',color:'#475569'}}>Full Name</label>
@@ -1357,13 +1643,71 @@ export default function App() {
                     />
                   </div>
                   {regFields.role === 'Generator' && (
-                    <div style={{display:'flex',flexDirection:'column',gap:'5px'}}>
-                      <label style={{fontSize:'0.72rem',fontWeight:700,textTransform:'uppercase',letterSpacing:'0.08em',color:'#475569'}}>Organization Name</label>
-                      <input type="text" required placeholder="e.g. Greenwood Housing Society" value={regFields.organizationName} onChange={e => setRegFields({...regFields,organizationName:e.target.value})}
-                        style={{background:'#F8FAFC',border:'1.5px solid #E2E8F0',borderRadius:'10px',fontSize:'0.875rem',color:'#1E293B',outline:'none'}}
-                        onFocus={e => e.target.style.borderColor='#2D6A4F'} onBlur={e => e.target.style.borderColor='#E2E8F0'}
-                      />
-                    </div>
+                    <>
+                      <div style={{display:'flex',flexDirection:'column',gap:'5px'}}>
+                        <label style={{fontSize:'0.72rem',fontWeight:700,textTransform:'uppercase',letterSpacing:'0.08em',color:'#475569'}}>Organization / Society Name *</label>
+                        <input type="text" required placeholder="e.g. Greenwood Housing Society" value={regFields.organizationName} onChange={e => setRegFields({...regFields,organizationName:e.target.value})}
+                          style={{background:'#F8FAFC',border:'1.5px solid #E2E8F0',borderRadius:'10px',fontSize:'0.875rem',color:'#1E293B',outline:'none'}}
+                          onFocus={e => e.target.style.borderColor='#2D6A4F'} onBlur={e => e.target.style.borderColor='#E2E8F0'}
+                        />
+                      </div>
+
+                      <div style={{display:'flex',flexDirection:'column',gap:'5px'}}>
+                        <label style={{fontSize:'0.72rem',fontWeight:700,textTransform:'uppercase',letterSpacing:'0.08em',color:'#1f5c3a'}}>Relationship with Property *</label>
+                        <select 
+                          value={regFields.propertyRelationship} 
+                          onChange={e => setRegFields({...regFields, propertyRelationship: e.target.value})} 
+                          style={{background:'#F0FDF4',border:'1.5px solid #86EFAC',borderRadius:'10px',fontSize:'0.875rem',color:'#1E293B',outline:'none',padding:'9px 12px'}}
+                        >
+                          <option value="Society President / Secretary">Society President / Secretary / RWA Head</option>
+                          <option value="Owner / Property Head">Owner / Property Head (Direct Ownership)</option>
+                          <option value="Facility Manager / Caretaker">Facility Manager / Estate Caretaker</option>
+                          <option value="Authorized Representative">Authorized Legal / Commercial Representative</option>
+                          <option value="Tenant / Resident">Tenant / Resident Representative</option>
+                          <option value="Administrative Officer">Administrative Officer / Facility Incharge</option>
+                        </select>
+                      </div>
+
+                      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}}>
+                        <div style={{display:'flex',flexDirection:'column',gap:'5px'}}>
+                          <label style={{fontSize:'0.72rem',fontWeight:700,textTransform:'uppercase',letterSpacing:'0.08em',color:'#475569'}}>Property Head / Authority Name</label>
+                          <input type="text" placeholder="e.g. Dr. Rajesh Rao (Chairman)" value={regFields.propertyHeadName} onChange={e => setRegFields({...regFields,propertyHeadName:e.target.value})}
+                            style={{background:'#F8FAFC',border:'1.5px solid #E2E8F0',borderRadius:'10px',fontSize:'0.82rem',color:'#1E293B',outline:'none'}}
+                            onFocus={e => e.target.style.borderColor='#2D6A4F'} onBlur={e => e.target.style.borderColor='#E2E8F0'}
+                          />
+                        </div>
+                        <div style={{display:'flex',flexDirection:'column',gap:'5px'}}>
+                          <label style={{fontSize:'0.72rem',fontWeight:700,textTransform:'uppercase',letterSpacing:'0.08em',color:'#475569'}}>Property Head Phone</label>
+                          <input type="text" placeholder="+91 98765 00000" value={regFields.propertyHeadContact} onChange={e => setRegFields({...regFields,propertyHeadContact:e.target.value})}
+                            style={{background:'#F8FAFC',border:'1.5px solid #E2E8F0',borderRadius:'10px',fontSize:'0.82rem',color:'#1E293B',outline:'none'}}
+                            onFocus={e => e.target.style.borderColor='#2D6A4F'} onBlur={e => e.target.style.borderColor='#E2E8F0'}
+                          />
+                        </div>
+                      </div>
+
+                      <div style={{background:'rgba(45,106,79,0.06)',border:'1px solid rgba(45,106,79,0.2)',borderRadius:'12px',padding:'12px'}}>
+                        <div style={{display:'flex',alignItems:'center',gap:'6px',marginBottom:'6px'}}>
+                          <FileText size={15} style={{color:'#1f5c3a'}} />
+                          <label style={{fontSize:'0.75rem',fontWeight:800,textTransform:'uppercase',letterSpacing:'0.06em',color:'#1f5c3a'}}>
+                            Letter from Property Head / NOC Document *
+                          </label>
+                        </div>
+                        <p style={{fontSize:'0.72rem',color:'#64748B',marginBottom:'8px'}}>
+                          Attach official authorization letter / NOC signed by Property Head / Society RWA verifying waste management authority.
+                        </p>
+                        <input 
+                          type="file" 
+                          accept=".pdf,.png,.jpg,.jpeg,.doc,.docx" 
+                          onChange={e => setRegFile(e.target.files[0])} 
+                          className="file:mr-3 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-emerald-900 file:text-emerald-200 hover:file:bg-emerald-800" 
+                        />
+                        {regFile && (
+                          <div style={{marginTop:'6px',fontSize:'0.72rem',color:'#16a34a',fontWeight:700}}>
+                            📎 Selected Document: {regFile.name} ({(regFile.size / 1024).toFixed(1)} KB)
+                          </div>
+                        )}
+                      </div>
+                    </>
                   )}
                   <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}}>
                     {[
@@ -1379,12 +1723,6 @@ export default function App() {
                       </div>
                     ))}
                   </div>
-                  {regFields.role === 'Generator' && (
-                    <div style={{display:'flex',flexDirection:'column',gap:'5px'}}>
-                      <label style={{fontSize:'0.72rem',fontWeight:700,textTransform:'uppercase',letterSpacing:'0.08em',color:'#475569'}}>Document Upload</label>
-                      <input type="file" onChange={e => setRegFile(e.target.files[0])} className="file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-emerald-950 file:text-emerald-300 hover:file:bg-emerald-900" />
-                    </div>
-                  )}
                   <button type="submit" style={{marginTop:'4px',width:'100%',padding:'13px',borderRadius:'10px',background:'linear-gradient(135deg,#1f5c3a,#2D6A4F)',color:'#fff',fontWeight:700,fontSize:'0.9rem',border:'none',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:'8px',boxShadow:'0 4px 14px rgba(45,106,79,0.35)'}}>
                     Submit Registration &nbsp;<Send size={15} />
                   </button>
@@ -1793,7 +2131,9 @@ export default function App() {
                           </div>
                           <div>
                             <span className="text-[10px] uppercase font-bold text-gray-400">Waste Scale Tonnage</span>
-                            <p className="text-xl font-bold text-white">{analytics.metrics.totalWasteCollected} Tons</p>
+                            <p className="text-xl font-bold text-white">
+                              {requests.filter(r => r.status === 'Completed' || r.status === 'Collected').reduce((sum, r) => sum + (parseFloat(r.weight) || parseFloat(r.wasteQuantity) || 0), 0).toFixed(1)} Tons
+                            </p>
                           </div>
                         </div>
 
@@ -1802,8 +2142,10 @@ export default function App() {
                             <DollarSign size={22} />
                           </div>
                           <div>
-                            <span className="text-[10px] uppercase font-bold text-gray-400">Total Billing Revenue</span>
-                            <p className="text-xl font-bold text-white">₹{analytics.metrics.totalRevenue}</p>
+                            <span className="text-[10px] uppercase font-bold text-gray-400">Total System Revenue</span>
+                            <p className="text-xl font-bold text-white">
+                              ₹{requests.filter(r => r.paymentStatus === 'Paid' || r.paymentStatus?.includes('Paid')).reduce((sum, r) => sum + (r.amount || 0), 0).toLocaleString('en-IN')}
+                            </p>
                           </div>
                         </div>
 
@@ -1812,8 +2154,8 @@ export default function App() {
                             <Layers size={22} />
                           </div>
                           <div>
-                            <span className="text-[10px] uppercase font-bold text-gray-400">Pending Pickups</span>
-                            <p className="text-xl font-bold text-white">{analytics.metrics.pendingRequests}</p>
+                            <span className="text-[10px] uppercase font-bold text-gray-400">Pickup Orders</span>
+                            <p className="text-xl font-bold text-white">{requests.length} Requests</p>
                           </div>
                         </div>
 
@@ -1822,9 +2164,133 @@ export default function App() {
                             <Truck size={22} />
                           </div>
                           <div>
-                            <span className="text-[10px] uppercase font-bold text-gray-400">Operational Fleet</span>
-                            <p className="text-xl font-bold text-white">{analytics.metrics.activeVehicles}</p>
+                            <span className="text-[10px] uppercase font-bold text-gray-400">Active Fleet</span>
+                            <p className="text-xl font-bold text-white">{vehicles.length} Vehicles</p>
                           </div>
+                        </div>
+                      </div>
+
+                      {/* Revenue by Channel: Driver Collections vs Online Gateway */}
+                      {(() => {
+                        const driverCollected = requests.filter(r => r.paymentDetails?.collectorDriverId || (r.wasteType === 'Organic' && (r.paymentStatus === 'Paid' || r.status === 'Collected' || r.status === 'Completed'))).reduce((sum, r) => sum + (r.amount || 0), 0);
+                        const onlineCollected = requests.filter(r => r.paymentDetails?.paymentMethod?.includes('Razorpay') || (r.paymentStatus === 'Paid' && !r.paymentDetails?.collectorDriverId && r.wasteType !== 'Organic')).reduce((sum, r) => sum + (r.amount || 0), 0);
+                        const payoutsDispatched = requests.filter(r => r.paymentDetails?.payerDriverId || r.paymentDetails?.amountPaidToUser || (r.wasteType !== 'Organic' && (r.status === 'Collected' || r.status === 'Completed'))).reduce((sum, r) => sum + (r.paymentDetails?.amountPaidToUser || r.adminDispatchedFunds || r.amount || 0), 0);
+                        const totalRev = driverCollected + onlineCollected;
+
+                        return (
+                          <div className="p-6 rounded-2xl bg-gradient-to-r from-slate-900/90 via-emerald-950/40 to-slate-900/90 border border-emerald-500/20 shadow-xl flex flex-col gap-4">
+                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b border-white/5 pb-3">
+                              <div>
+                                <h3 className="text-base font-bold text-white flex items-center gap-2">
+                                  <DollarSign size={18} className="text-emerald-400" /> Financial Settlement &amp; Driver Collections Overview
+                                </h3>
+                                <p className="text-xs text-gray-400">Tracking driver in-hand cash collections, Razorpay online gateway revenue, and user scrap payouts.</p>
+                              </div>
+                              <span className="badge badge-success text-xs font-mono font-bold">
+                                Gross Collected: ₹{totalRev.toLocaleString('en-IN')}
+                              </span>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                              <div className="p-4 rounded-xl bg-amber-950/30 border border-amber-500/30 flex flex-col gap-1">
+                                <span className="text-[10px] uppercase font-bold text-amber-400 flex items-center gap-1.5">
+                                  <Truck size={13} /> Money Collected by Drivers
+                                </span>
+                                <span className="text-2xl font-mono font-black text-amber-300">
+                                  ₹{driverCollected.toLocaleString('en-IN')}
+                                </span>
+                                <span className="text-[11px] text-gray-300">Direct cash/UPI paid to drivers for Food Waste</span>
+                              </div>
+
+                              <div className="p-4 rounded-xl bg-cyan-950/30 border border-cyan-500/30 flex flex-col gap-1">
+                                <span className="text-[10px] uppercase font-bold text-cyan-400 flex items-center gap-1.5">
+                                  <CheckCircle size={13} /> Razorpay Online Collections
+                                </span>
+                                <span className="text-2xl font-mono font-black text-cyan-300">
+                                  ₹{onlineCollected.toLocaleString('en-IN')}
+                                </span>
+                                <span className="text-[11px] text-gray-300">Processed directly into Admin bank gateway</span>
+                              </div>
+
+                              <div className="p-4 rounded-xl bg-emerald-950/30 border border-emerald-500/30 flex flex-col gap-1">
+                                <span className="text-[10px] uppercase font-bold text-emerald-400 flex items-center gap-1.5">
+                                  <DollarSign size={13} /> Dispatched User Payouts
+                                </span>
+                                <span className="text-2xl font-mono font-black text-emerald-300">
+                                  ₹{payoutsDispatched.toLocaleString('en-IN')}
+                                </span>
+                                <span className="text-[11px] text-gray-300">Paid out to users for recyclable/non-food waste</span>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })()}
+
+                      {/* ALL WASTE CATEGORIES: QUANTITY & REVENUE MATRIX */}
+                      <div className="flex flex-col gap-4">
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                              <Trash2 size={20} className="text-emerald-400" /> Category-Wise Waste Breakdown &amp; Financial Ledger
+                            </h3>
+                            <p className="text-xs text-gray-400">All 6 waste categories calculated separately with total scaled quantity (Tons), order frequency, and revenue amount.</p>
+                          </div>
+                          <button 
+                            onClick={() => setActiveTab('categories')}
+                            className="btn-secondary py-1.5 px-3 text-xs text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/10 font-bold"
+                          >
+                            Open Category Hubs →
+                          </button>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                          {[
+                            { cat: 'Organic', label: 'Organic / Food Waste', icon: '🥦', color: 'emerald' },
+                            { cat: 'Recyclable', label: 'Recyclable (Plastics/Metals)', icon: '♻️', color: 'cyan' },
+                            { cat: 'Hazardous', label: 'Hazardous Waste', icon: '☣️', color: 'red' },
+                            { cat: 'E-waste', label: 'E-waste (Electronics)', icon: '💻', color: 'indigo' },
+                            { cat: 'Construction', label: 'Construction & Debris', icon: '🧱', color: 'amber' },
+                            { cat: 'Other', label: 'Other / Solid Residual', icon: '🗑️', color: 'purple' }
+                          ].map(item => {
+                            const catReqs = requests.filter(r => r.wasteType === item.cat);
+                            const collectedReqs = catReqs.filter(r => r.status === 'Collected' || r.status === 'Completed');
+                            const totalTons = collectedReqs.reduce((sum, r) => sum + (parseFloat(r.weight) || parseFloat(r.wasteQuantity) || 0), 0);
+                            const totalAmount = catReqs.filter(r => r.paymentStatus === 'Paid' || r.paymentStatus?.includes('Paid')).reduce((sum, r) => sum + (r.amount || 0), 0);
+                            const threshold = pricingSettings?.wasteThresholds?.[item.cat] !== undefined ? pricingSettings.wasteThresholds[item.cat] : 10;
+                            const isExceeded = totalTons >= threshold;
+
+                            return (
+                              <div 
+                                key={item.cat}
+                                onClick={() => { setSelectedCategoryTab(item.cat); setActiveTab('categories'); }}
+                                className="glass p-5 rounded-2xl border border-white/5 hover:border-emerald-500/40 transition-all cursor-pointer flex flex-col justify-between gap-4 group hover:shadow-xl"
+                              >
+                                <div className="flex justify-between items-start">
+                                  <div className="flex items-center gap-2.5">
+                                    <span className="text-2xl">{item.icon}</span>
+                                    <div>
+                                      <h4 className="font-bold text-white text-sm group-hover:text-emerald-400 transition-colors">{item.label}</h4>
+                                      <span className="text-[11px] text-gray-400">{catReqs.length} Total Orders · {collectedReqs.length} Collected</span>
+                                    </div>
+                                  </div>
+                                  <span className={`badge ${isExceeded ? 'badge-danger animate-pulse' : 'badge-info'} text-[10px] font-mono font-bold`}>
+                                    {totalTons.toFixed(1)}t / {threshold}t
+                                  </span>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-2 pt-2 border-t border-white/5">
+                                  <div className="p-2.5 rounded-xl bg-white/2 border border-white/5">
+                                    <span className="text-[10px] text-gray-400 uppercase font-bold block">Total Quantity</span>
+                                    <span className="text-base font-mono font-black text-emerald-400">{totalTons.toFixed(1)} Tons</span>
+                                  </div>
+                                  <div className="p-2.5 rounded-xl bg-white/2 border border-white/5">
+                                    <span className="text-[10px] text-gray-400 uppercase font-bold block">Total Amount</span>
+                                    <span className="text-base font-mono font-black text-white">₹{totalAmount.toLocaleString('en-IN')}</span>
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
                         </div>
                       </div>
 
@@ -2178,8 +2644,10 @@ export default function App() {
                       {/* Category Selection Tabs */}
                       <div className="flex flex-wrap gap-2 border-b border-white/10 pb-3">
                         {['Organic', 'Recyclable', 'Hazardous', 'E-waste', 'Construction', 'Other'].map(cat => {
-                          const catReqs = requests.filter(r => r.wasteType === cat && (r.status === 'Collected' || r.status === 'Completed'));
-                          const catWeight = catReqs.reduce((sum, r) => sum + (r.weight || r.wasteQuantity || 0), 0);
+                          const catReqs = requests.filter(r => r.wasteType === cat);
+                          const collectedReqs = catReqs.filter(r => r.status === 'Collected' || r.status === 'Completed');
+                          const catWeight = collectedReqs.reduce((sum, r) => sum + (parseFloat(r.weight) || parseFloat(r.wasteQuantity) || 0), 0);
+                          const catAmount = catReqs.filter(r => r.paymentStatus === 'Paid' || r.paymentStatus?.includes('Paid')).reduce((sum, r) => sum + (r.amount || 0), 0);
                           const threshold = pricingSettings?.wasteThresholds?.[cat] !== undefined ? pricingSettings.wasteThresholds[cat] : 10;
                           const isExceeded = catWeight >= threshold;
 
@@ -2187,7 +2655,7 @@ export default function App() {
                             <button
                               key={cat}
                               onClick={() => setSelectedCategoryTab(cat)}
-                              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 border ${
+                              className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 border ${
                                 selectedCategoryTab === cat
                                   ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.15)]'
                                   : 'bg-white/5 text-gray-400 border-white/5 hover:bg-white/10'
@@ -2195,7 +2663,7 @@ export default function App() {
                             >
                               <span>{cat}</span>
                               <span className={`text-[10px] px-2 py-0.5 rounded-full font-mono font-extrabold ${isExceeded ? 'bg-amber-500/30 text-amber-300 border border-amber-500/40 animate-pulse' : 'bg-white/10 text-gray-300'}`}>
-                                {catWeight.toFixed(1)}t / {threshold}t
+                                {catWeight.toFixed(1)}t · ₹{catAmount.toLocaleString('en-IN')}
                               </span>
                               {isExceeded && <ShieldAlert size={14} className="text-amber-400" />}
                             </button>
@@ -2208,7 +2676,9 @@ export default function App() {
                         const cat = selectedCategoryTab;
                         const catReqs = requests.filter(r => r.wasteType === cat);
                         const collectedReqs = catReqs.filter(r => r.status === 'Collected' || r.status === 'Completed');
-                        const currentWeight = collectedReqs.reduce((sum, r) => sum + (r.weight || r.wasteQuantity || 0), 0);
+                        const currentWeight = collectedReqs.reduce((sum, r) => sum + (parseFloat(r.weight) || parseFloat(r.wasteQuantity) || 0), 0);
+                        const totalAmount = catReqs.filter(r => r.paymentStatus === 'Paid' || r.paymentStatus?.includes('Paid')).reduce((sum, r) => sum + (r.amount || 0), 0);
+                        const totalBilledValue = catReqs.reduce((sum, r) => sum + (r.amount || 0), 0);
                         const threshold = pricingSettings?.wasteThresholds?.[cat] !== undefined ? pricingSettings.wasteThresholds[cat] : 10;
                         const isExceeded = currentWeight >= threshold;
                         const percentage = Math.min(100, Math.round((currentWeight / threshold) * 100));
@@ -2241,23 +2711,29 @@ export default function App() {
                               </div>
                             )}
 
-                            {/* Category Overview Stats & Meter */}
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                              <div className="glass p-5 rounded-2xl border border-white/5 flex flex-col gap-2">
+                            {/* Category Overview Stats & Revenue Matrix */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                              <div className="glass p-5 rounded-2xl border border-white/5 flex flex-col gap-1.5">
                                 <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Total {cat} Pickups</span>
                                 <span className="text-2xl font-bold text-white">{catReqs.length} Orders</span>
-                                <span className="text-xs text-emerald-400 font-semibold">{collectedReqs.length} Collected / Completed</span>
+                                <span className="text-xs text-emerald-400 font-semibold">{collectedReqs.length} Scaled &amp; Collected</span>
                               </div>
 
-                              <div className="glass p-5 rounded-2xl border border-white/5 flex flex-col gap-2">
-                                <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Accumulated Weight</span>
+                              <div className="glass p-5 rounded-2xl border border-white/5 flex flex-col gap-1.5">
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Accumulated Quantity</span>
                                 <span className="text-2xl font-bold text-emerald-400 font-mono">{currentWeight.toFixed(1)} Tons</span>
-                                <span className="text-xs text-gray-400">Admin Threshold Limit: <span className="font-bold text-white">{threshold} Tons</span></span>
+                                <span className="text-xs text-gray-400">Threshold Limit: <span className="font-bold text-white">{threshold} Tons</span></span>
                               </div>
 
-                              <div className="glass p-5 rounded-2xl border border-white/5 flex flex-col gap-3 justify-center">
+                              <div className="glass p-5 rounded-2xl border border-white/5 flex flex-col gap-1.5">
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Total Collected Revenue</span>
+                                <span className="text-2xl font-bold text-cyan-300 font-mono">₹{totalAmount.toLocaleString('en-IN')}</span>
+                                <span className="text-xs text-gray-400">Total Billed Value: <span className="font-bold text-white">₹{totalBilledValue.toLocaleString('en-IN')}</span></span>
+                              </div>
+
+                              <div className="glass p-5 rounded-2xl border border-white/5 flex flex-col gap-2.5 justify-center">
                                 <div className="flex justify-between items-center text-xs">
-                                  <span className="font-bold text-gray-300">Threshold Capacity Utilization</span>
+                                  <span className="font-bold text-gray-300">Storage Meter</span>
                                   <span className={`font-mono font-bold ${isExceeded ? 'text-amber-400' : 'text-emerald-400'}`}>{percentage}%</span>
                                 </div>
                                 <div className="w-full bg-slate-950 h-3 rounded-full overflow-hidden border border-white/10 p-0.5">
@@ -2271,11 +2747,11 @@ export default function App() {
 
                             {/* Category Orders Table */}
                             <div className="glass border border-white/5 rounded-2xl overflow-hidden">
-                              <div className="p-4 border-b border-white/5 flex justify-between items-center">
+                              <div className="p-4 px-6 border-b border-white/5 flex justify-between items-center">
                                 <h3 className="font-bold text-sm text-white flex items-center gap-2">
-                                  <Trash2 size={16} className="text-emerald-400" /> Dedicated {cat} Waste Orders Log
+                                  <Trash2 size={16} className="text-emerald-400" /> Dedicated {cat} Waste Orders &amp; Financial Log
                                 </h3>
-                                <span className="text-xs text-gray-400">{catReqs.length} Requests Found</span>
+                                <span className="text-xs text-gray-400 font-mono font-bold">{catReqs.length} Requests Recorded</span>
                               </div>
                               <div className="table-container">
                                 <table>
@@ -2283,9 +2759,11 @@ export default function App() {
                                     <tr>
                                       <th>Reference ID</th>
                                       <th>Generator / Property</th>
-                                      <th>Est. Tonnage</th>
-                                      <th>Actual Weight</th>
-                                      <th>Scheduled Date</th>
+                                      <th>Planned Volume</th>
+                                      <th>Measured Scale Tonnage</th>
+                                      <th>Amount (₹)</th>
+                                      <th>Assigned Driver</th>
+                                      <th>Payment</th>
                                       <th>Status</th>
                                       <th className="text-right">Action</th>
                                     </tr>
@@ -2293,7 +2771,7 @@ export default function App() {
                                   <tbody>
                                     {catReqs.length === 0 ? (
                                       <tr>
-                                        <td colSpan="7" className="text-center text-xs text-gray-500 italic py-8">
+                                        <td colSpan="9" className="text-center text-xs text-gray-400 italic py-8">
                                           No pickup orders logged for {cat} waste yet.
                                         </td>
                                       </tr>
@@ -2303,11 +2781,30 @@ export default function App() {
                                           <td className="font-mono text-xs text-emerald-400 font-bold">{r.id}</td>
                                           <td>
                                             <div className="font-bold text-sm text-white">{r.generatorName}</div>
-                                            <div className="text-[10px] text-gray-400">{r.propertyName} - {r.propertyAddress}</div>
+                                            <div className="text-[10px] text-gray-400">{r.propertyName} · {r.propertyAddress}</div>
                                           </td>
-                                          <td className="font-semibold text-white">{r.wasteQuantity}t</td>
-                                          <td className="font-semibold text-emerald-400 font-mono">{r.weight > 0 ? `${r.weight}t` : 'Pending'}</td>
-                                          <td className="text-xs">{r.scheduledDate}</td>
+                                          <td className="font-semibold text-gray-300">{r.wasteQuantity}t</td>
+                                          <td>
+                                            <span className="font-mono font-bold text-emerald-400 text-sm">
+                                              {r.weight > 0 ? `${r.weight} Tons` : 'Awaiting Scale'}
+                                            </span>
+                                          </td>
+                                          <td>
+                                            <span className="font-mono font-bold text-white text-sm">
+                                              ₹{r.amount?.toLocaleString('en-IN')}
+                                            </span>
+                                          </td>
+                                          <td>
+                                            <div className="text-xs font-semibold text-gray-200">
+                                              {r.assignedDriverId ? `Driver #${r.assignedDriverId.slice(-6)}` : 'Unassigned'}
+                                            </div>
+                                            <div className="text-[10px] text-gray-400">{r.scheduledDate}</div>
+                                          </td>
+                                          <td>
+                                            <span className={`badge ${r.paymentStatus === 'Paid' || r.paymentStatus?.includes('Paid') ? 'badge-paid' : 'badge-pending'}`}>
+                                              {r.paymentStatus || 'Unpaid'}
+                                            </span>
+                                          </td>
                                           <td>
                                             <span className={`badge ${r.status === 'Pending' ? 'badge-pending' : r.status === 'Assigned' ? 'badge-assigned' : r.status === 'Collected' ? 'badge-collected' : 'badge-completed'}`}>
                                               {r.status}
@@ -2353,18 +2850,19 @@ export default function App() {
                             <table>
                               <thead>
                                 <tr>
-                                  <th>Applicant</th>
+                                  <th>Applicant & Org</th>
                                   <th>Role</th>
-                                  <th>Organization</th>
-                                  <th>Document</th>
-                                  <th>Submitted</th>
+                                  <th>Property Relationship</th>
+                                  <th>Property Head / Contact</th>
+                                  <th>Letter / NOC Document</th>
+                                  <th>Status</th>
                                   <th className="text-right">Action</th>
                                 </tr>
                               </thead>
                               <tbody>
                                 {usersList.filter(u => u.status === 'pending').length === 0 ? (
                                   <tr>
-                                    <td colSpan="6" className="text-center text-xs text-gray-400 italic py-10">
+                                    <td colSpan="7" className="text-center text-xs text-gray-400 italic py-10">
                                       No pending approvals at this time.
                                     </td>
                                   </tr>
@@ -2372,34 +2870,43 @@ export default function App() {
                                   usersList.filter(u => u.status === 'pending').map(u => (
                                     <tr key={u.id}>
                                       <td>
-                                        <div className="font-bold">{u.name}</div>
-                                        <div className="text-[10px] text-gray-400">@{u.username} | {u.email}</div>
+                                        <div className="font-bold text-white">{u.name}</div>
+                                        <div className="text-[11px] text-emerald-400 font-semibold">{u.organizationName || 'N/A'}</div>
+                                        <div className="text-[10px] text-gray-400">@{u.username} | {u.email} | {u.contact || 'No contact'}</div>
                                       </td>
                                       <td>
                                         <span className="badge badge-pending">{u.role}</span>
                                       </td>
-                                      <td className="text-sm">{u.organizationName || 'N/A'}</td>
                                       <td>
-                                        {u.docs && u.docs.length > 0 ? (
+                                        <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold bg-emerald-950/70 text-emerald-300 border border-emerald-500/30">
+                                          🏢 {u.propertyRelationship || 'Owner / Property Head'}
+                                        </span>
+                                      </td>
+                                      <td>
+                                        <div className="text-xs font-semibold text-gray-200">{u.propertyHeadName || u.name}</div>
+                                        <div className="text-[11px] text-gray-400">{u.propertyHeadContact || u.contact || 'Direct contact'}</div>
+                                      </td>
+                                      <td>
+                                        {u.authorizationLetterDoc || (u.docs && u.docs.length > 0) ? (
                                           <a
-                                            href={`http://localhost:5000/uploads/${u.docs[0]}`}
+                                            href={`http://localhost:5000/uploads/${u.authorizationLetterDoc || u.docs[0]}`}
                                             target="_blank"
                                             rel="noreferrer"
-                                            className="text-xs text-emerald-400 underline font-semibold flex items-center gap-1 hover:text-emerald-300"
+                                            className="text-xs text-emerald-400 underline font-bold inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-emerald-950/60 border border-emerald-500/30 hover:bg-emerald-900/60 transition-colors"
                                           >
-                                            <FileText size={12} /> View Doc
+                                            <FileText size={13} className="text-emerald-300" /> View Auth Letter
                                           </a>
                                         ) : (
-                                          <span className="text-xs text-gray-500 italic">None</span>
+                                          <span className="text-xs text-amber-400/80 italic">No doc attached</span>
                                         )}
                                       </td>
-                                      <td className="text-xs text-gray-400">Pending</td>
+                                      <td className="text-xs text-amber-300 font-semibold">Pending Review</td>
                                       <td className="text-right">
                                         <div className="flex gap-2 justify-end">
-                                          <button onClick={() => handleApproveUser(u.id)} className="btn-primary py-1 px-3 text-xs">
+                                          <button onClick={() => handleApproveUser(u.id)} className="btn-primary py-1.5 px-3.5 text-xs font-bold shadow-sm">
                                             Approve
                                           </button>
-                                          <button onClick={() => handleSuspendUser(u.id)} className="btn-secondary py-1 px-3 text-xs hover:border-red-500 hover:text-red-400">
+                                          <button onClick={() => handleSuspendUser(u.id)} className="btn-secondary py-1.5 px-3 text-xs hover:border-red-500 hover:text-red-400">
                                             Reject
                                           </button>
                                         </div>
@@ -2862,127 +3369,291 @@ export default function App() {
                   )}
 
                   {/* PAYMENT SECTION (ADMIN) */}
-                  {activeTab === 'payments' && (
-                    <div className="flex flex-col gap-6 animate-fade-in">
-                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        <div>
-                          <h2 className="text-xl font-bold flex items-center gap-2 text-emerald-400">
-                            <DollarSign size={22} /> Payment Section & Razorpay Gateway
-                          </h2>
-                          <p className="text-xs text-gray-400">
-                            Manage payment transactions, Razorpay gateway configuration, and billing audit logs.
-                          </p>
-                        </div>
-                        <span className="badge badge-success px-3 py-1 text-xs">
-                          Razorpay Key Active
-                        </span>
-                      </div>
+                  {activeTab === 'payments' && (() => {
+                    const totalRevenue = requests.filter(r => r.paymentStatus === 'Paid' || r.paymentStatus?.includes('Paid')).reduce((sum, r) => sum + (r.amount || 0), 0);
+                    const driverCashTotal = requests.filter(r => (r.paymentDetails?.collectorDriverId || (r.wasteType === 'Organic' && (r.paymentStatus === 'Paid' || r.status === 'Collected' || r.status === 'Completed')))).reduce((sum, r) => sum + (r.amount || 0), 0);
+                    const onlineGatewayTotal = requests.filter(r => (r.paymentDetails?.paymentMethod && (r.paymentDetails.paymentMethod.includes('Razorpay') || r.paymentDetails.paymentMethod.includes('Online')))).reduce((sum, r) => sum + (r.amount || 0), 0);
+                    const userPayoutsTotal = requests.filter(r => r.paymentDetails?.amountPaidToUser || r.paymentDetails?.payerDriverId).reduce((sum, r) => sum + (r.paymentDetails?.amountPaidToUser || 0), 0);
 
-                      {/* Razorpay Integration Key Details Card */}
-                      <div className="glass p-6 rounded-2xl border border-emerald-500/30 flex flex-col gap-4 relative overflow-hidden">
-                        <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-blue-500 via-indigo-500 to-emerald-500"></div>
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center font-black text-white text-lg shadow-lg">
-                              R
-                            </div>
-                            <div>
-                              <h3 className="font-extrabold text-base text-white tracking-wide">Razorpay Integration Key</h3>
-                              <span className="text-xs text-gray-400">Active Razorpay Gateway Account</span>
-                            </div>
-                          </div>
-                          <span className="badge badge-info px-3 py-1 text-xs font-mono">
-                            TEST MODE
-                          </span>
-                        </div>
+                    // Extract all unique drivers
+                    const allDrivers = (usersList.filter(u => u.role === 'Driver').length > 0
+                      ? usersList.filter(u => u.role === 'Driver')
+                      : [
+                          { id: 2, username: 'john_doe', name: 'John Doe', contact: '+91 98765 43210' },
+                          { id: 4, username: 'driver', name: 'Standard Driver', contact: '+91 91234 56789' },
+                          { id: 5, username: 'driver2', name: 'Express Route Driver', contact: '+91 98765 00000' }
+                        ]
+                    );
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
-                          <div className="p-4 rounded-xl bg-white/5 border border-white/10 flex flex-col gap-1">
-                            <span className="text-[10px] uppercase font-bold text-gray-400">Razorpay Key ID</span>
-                            <span className="font-mono text-sm font-bold text-emerald-400 select-all">
-                              rzp_test_SC7GZQVzAK7jRK
-                            </span>
-                          </div>
-                          <div className="p-4 rounded-xl bg-white/5 border border-white/10 flex flex-col gap-1">
-                            <span className="text-[10px] uppercase font-bold text-gray-400">Gateway Status</span>
-                            <span className="text-xs font-semibold text-emerald-300 flex items-center gap-1.5">
-                              <CheckCircle size={14} className="text-emerald-400" /> Connected &amp; Accepting Payments
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Total Revenue & Payment Transactions Table */}
-                      <div className="glass border border-white/5 rounded-2xl overflow-hidden">
-                        <div style={{ padding: '20px 24px 16px', borderBottom: '1px solid var(--border-color)', display: 'flex', justify: 'space-between', alignItems: 'center' }}>
+                    return (
+                      <div className="flex flex-col gap-6 animate-fade-in">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                           <div>
-                            <h3 className="text-base font-bold text-white">Payment Transactions & Invoices</h3>
-                            <p className="text-xs text-gray-400">List of all user pickup payments and revenue receipts.</p>
+                            <h2 className="text-xl font-bold flex items-center gap-2 text-emerald-400">
+                              <DollarSign size={22} /> Admin Revenue &amp; Driver Cash Handover Center
+                            </h2>
+                            <p className="text-xs text-gray-400">
+                              Track all driver in-hand collections, Razorpay online gateway payments, and category-wise billing accounts.
+                            </p>
                           </div>
-                          <div className="text-right">
-                            <span className="text-[10px] uppercase font-bold text-gray-400 block">Total Revenue</span>
-                            <span className="text-lg font-mono font-bold text-emerald-400">
-                              ₹{requests.filter(r => r.paymentStatus === 'Paid').reduce((sum, r) => sum + (r.amount || 0), 0)}
+                          <div className="flex items-center gap-2">
+                            <span className="badge badge-success px-3 py-1 text-xs">
+                              Gateway: rzp_test_SC7GZQVzAK7jRK
                             </span>
                           </div>
                         </div>
 
-                        <div className="table-container">
-                          <table>
-                            <thead>
-                              <tr>
-                                <th>Transaction Ref</th>
-                                <th>Generator Property</th>
-                                <th>Waste Category</th>
-                                <th>Amount</th>
-                                <th>Payment Method</th>
-                                <th>Razorpay Key</th>
-                                <th>Status</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {requests.length === 0 ? (
+                        {/* Top Financial Breakdown Cards */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                          <div className="glass p-5 rounded-2xl border border-emerald-500/30 flex flex-col justify-between relative overflow-hidden">
+                            <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-emerald-500 to-teal-400"></div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Total Gross Inflow</span>
+                              <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400">
+                                <DollarSign size={18} />
+                              </div>
+                            </div>
+                            <div className="mt-3">
+                              <div className="text-2xl font-black font-mono text-emerald-400">
+                                ₹{totalRevenue.toLocaleString()}
+                              </div>
+                              <span className="text-[11px] text-gray-400 mt-1 block">All channels combined</span>
+                            </div>
+                          </div>
+
+                          <div className="glass p-5 rounded-2xl border border-amber-500/30 flex flex-col justify-between relative overflow-hidden">
+                            <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-amber-500 to-orange-400"></div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Driver Cash In-Hand</span>
+                              <div className="p-2 rounded-xl bg-amber-500/10 text-amber-400">
+                                <Truck size={18} />
+                              </div>
+                            </div>
+                            <div className="mt-3">
+                              <div className="text-2xl font-black font-mono text-amber-400">
+                                ₹{driverCashTotal.toLocaleString()}
+                              </div>
+                              <span className="text-[11px] text-amber-300/80 mt-1 block">Food &amp; Scale collections</span>
+                            </div>
+                          </div>
+
+                          <div className="glass p-5 rounded-2xl border border-blue-500/30 flex flex-col justify-between relative overflow-hidden">
+                            <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-400"></div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Razorpay Online</span>
+                              <div className="p-2 rounded-xl bg-blue-500/10 text-blue-400">
+                                <CreditCard size={18} />
+                              </div>
+                            </div>
+                            <div className="mt-3">
+                              <div className="text-2xl font-black font-mono text-blue-400">
+                                ₹{onlineGatewayTotal.toLocaleString()}
+                              </div>
+                              <span className="text-[11px] text-blue-300/80 mt-1 block">Direct UPI &amp; Cards</span>
+                            </div>
+                          </div>
+
+                          <div className="glass p-5 rounded-2xl border border-purple-500/30 flex flex-col justify-between relative overflow-hidden">
+                            <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-purple-500 to-pink-400"></div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Recyclable Payouts</span>
+                              <div className="p-2 rounded-xl bg-purple-500/10 text-purple-400">
+                                <TrendingUp size={18} />
+                              </div>
+                            </div>
+                            <div className="mt-3">
+                              <div className="text-2xl font-black font-mono text-purple-400">
+                                ₹{userPayoutsTotal.toLocaleString()}
+                              </div>
+                              <span className="text-[11px] text-purple-300/80 mt-1 block">Paid out to generators</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* DRIVER IN-HAND CASH & HANDOVER LEDGER */}
+                        <div className="glass border border-white/5 rounded-2xl overflow-hidden">
+                          <div style={{ padding: '20px 24px 16px', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div>
+                              <h3 className="text-base font-bold text-white flex items-center gap-2">
+                                <Truck size={18} className="text-amber-400" /> Driver In-Hand Cash Ledger &amp; Handover Reconciliation
+                              </h3>
+                              <p className="text-xs text-gray-400">Breakdown of ground cash collected by each driver from food waste and scale weights.</p>
+                            </div>
+                            <span className="badge badge-warning px-3 py-1 text-xs font-mono">
+                              {allDrivers.length} Active Driver Accounts
+                            </span>
+                          </div>
+
+                          <div className="table-container">
+                            <table>
+                              <thead>
                                 <tr>
-                                  <td colSpan="7" className="text-center text-xs text-gray-400 italic py-8">
-                                    No payment transactions recorded yet.
-                                  </td>
+                                  <th>Driver Name</th>
+                                  <th>Contact &amp; Account</th>
+                                  <th>Assigned Vehicle</th>
+                                  <th>Trips Handled</th>
+                                  <th>Gross Cash Collected</th>
+                                  <th>Dispatched Payouts</th>
+                                  <th>Net Cash in Hand</th>
+                                  <th>Handover Status</th>
                                 </tr>
-                              ) : (
-                                requests.map(r => (
-                                  <tr key={r.id}>
-                                    <td className="font-mono text-xs font-semibold text-white">
-                                      {r.paymentDetails?.transactionId || `PAY-${r.id}`}
-                                    </td>
-                                    <td>
-                                      <div className="font-bold text-xs text-white">{r.generatorName}</div>
-                                      <div className="text-[10px] text-gray-400">{r.propertyName}</div>
-                                    </td>
-                                    <td>
-                                      <span className="badge badge-info py-0.5 px-2 text-[10px]">{r.wasteType}</span>
-                                    </td>
-                                    <td className="font-mono font-bold text-emerald-400 text-sm">
-                                      ₹{r.amount}
-                                    </td>
-                                    <td className="text-xs text-gray-300">
-                                      {r.paymentDetails?.paymentMethod || 'Razorpay Online'}
-                                    </td>
-                                    <td className="font-mono text-[11px] text-cyan-400">
-                                      rzp_test_SC7GZQVzAK7jRK
-                                    </td>
-                                    <td>
-                                      <span className={`badge ${r.paymentStatus === 'Paid' ? 'badge-paid' : 'badge-pending'}`}>
-                                        {r.paymentStatus || 'Unpaid'}
-                                      </span>
+                              </thead>
+                              <tbody>
+                                {allDrivers.map(drv => {
+                                  const drvVeh = vehicles.find(v => v.driverId === drv.id || v.driverId === drv.username);
+                                  const drvReqs = requests.filter(r => 
+                                    r.assignedDriverId === drv.id || 
+                                    r.assignedDriverName === drv.name || 
+                                    r.assignedDriverName === drv.username || 
+                                    r.paymentDetails?.collectorDriverId === drv.id ||
+                                    r.paymentDetails?.collectorDriverId === drv.username
+                                  );
+                                  const drvTrips = drvReqs.length;
+                                  const drvCollected = drvReqs.filter(r => 
+                                    r.paymentDetails?.collectorDriverId === drv.id ||
+                                    r.paymentDetails?.collectorDriverId === drv.username ||
+                                    (r.wasteType === 'Organic' && (r.paymentStatus === 'Paid' || r.status === 'Collected' || r.status === 'Completed'))
+                                  ).reduce((sum, r) => sum + (r.amount || 0), 0);
+                                  
+                                  const drvPayouts = drvReqs.reduce((sum, r) => sum + (r.paymentDetails?.amountPaidToUser || 0), 0);
+                                  const netCash = drvCollected - drvPayouts;
+
+                                  return (
+                                    <tr key={drv.id || drv.username}>
+                                      <td>
+                                        <div className="font-bold text-xs text-white">{drv.name || drv.username}</div>
+                                        <div className="text-[10px] text-emerald-400 font-mono">ID: #{drv.id}</div>
+                                      </td>
+                                      <td>
+                                        <div className="text-xs text-gray-300 font-mono">{drv.contact || '+91 98765 43210'}</div>
+                                        <div className="text-[10px] text-gray-400">@{drv.username}</div>
+                                      </td>
+                                      <td>
+                                        {drvVeh ? (
+                                          <div className="flex items-center gap-1.5">
+                                            <span className="badge badge-info py-0.5 px-2 text-[10px] font-mono">{drvVeh.licensePlate}</span>
+                                            <span className="text-[10px] text-gray-400">({drvVeh.type})</span>
+                                          </div>
+                                        ) : (
+                                          <span className="text-xs text-gray-500 italic">Unassigned</span>
+                                        )}
+                                      </td>
+                                      <td className="font-mono text-xs font-semibold text-white">
+                                        {drvTrips} Pickups
+                                      </td>
+                                      <td className="font-mono font-bold text-amber-400 text-sm">
+                                        ₹{drvCollected.toLocaleString()}
+                                      </td>
+                                      <td className="font-mono font-bold text-purple-400 text-xs">
+                                        ₹{drvPayouts.toLocaleString()}
+                                      </td>
+                                      <td className="font-mono font-black text-emerald-400 text-sm">
+                                        ₹{netCash.toLocaleString()}
+                                      </td>
+                                      <td>
+                                        {netCash > 0 ? (
+                                          <span className="badge badge-warning px-2.5 py-1 text-[10px] font-semibold">
+                                            ₹{netCash} In-Hand (Pending Handover)
+                                          </span>
+                                        ) : (
+                                          <span className="badge badge-success px-2.5 py-1 text-[10px] font-semibold">
+                                            All Reconciled
+                                          </span>
+                                        )}
+                                      </td>
+                                    </tr>
+                                  );
+                                })}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+
+                        {/* RAZORPAY CONFIG & ALL TRANSACTIONS TABLE */}
+                        <div className="glass border border-white/5 rounded-2xl overflow-hidden">
+                          <div style={{ padding: '20px 24px 16px', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div>
+                              <h3 className="text-base font-bold text-white">Complete Multi-Channel Transactions Ledger</h3>
+                              <p className="text-xs text-gray-400">Live feed of all pickup payments, scaled tonnage bills, and driver settlements.</p>
+                            </div>
+                            <div className="text-right">
+                              <span className="text-[10px] uppercase font-bold text-gray-400 block">Total Records</span>
+                              <span className="text-sm font-mono font-bold text-emerald-400">{requests.length} Orders</span>
+                            </div>
+                          </div>
+
+                          <div className="table-container">
+                            <table>
+                              <thead>
+                                <tr>
+                                  <th>Transaction Ref</th>
+                                  <th>Generator / Property</th>
+                                  <th>Category</th>
+                                  <th>Quantity (Tons)</th>
+                                  <th>Amount</th>
+                                  <th>Channel / Mode</th>
+                                  <th>Collector Driver</th>
+                                  <th>Payment Status</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {requests.length === 0 ? (
+                                  <tr>
+                                    <td colSpan="8" className="text-center text-xs text-gray-400 italic py-8">
+                                      No payment transactions recorded yet.
                                     </td>
                                   </tr>
-                                ))
-                              )}
-                            </tbody>
-                          </table>
+                                ) : (
+                                  requests.map(r => {
+                                    const isDriverCash = r.paymentDetails?.collectorDriverId || (r.wasteType === 'Organic' && (r.paymentStatus === 'Paid' || r.status === 'Collected' || r.status === 'Completed'));
+                                    return (
+                                      <tr key={r.id}>
+                                        <td className="font-mono text-xs font-semibold text-white">
+                                          {r.paymentDetails?.transactionId || `TXN-ORD#${r.id}`}
+                                        </td>
+                                        <td>
+                                          <div className="font-bold text-xs text-white">{r.generatorName}</div>
+                                          <div className="text-[10px] text-gray-400">{r.propertyName}</div>
+                                        </td>
+                                        <td>
+                                          <span className="badge badge-info py-0.5 px-2 text-[10px]">{r.wasteType}</span>
+                                        </td>
+                                        <td className="font-mono text-xs font-semibold text-gray-300">
+                                          {parseFloat(r.weight || r.wasteQuantity || 0).toFixed(2)} T
+                                        </td>
+                                        <td className="font-mono font-bold text-emerald-400 text-sm">
+                                          ₹{(r.amount || 0).toLocaleString()}
+                                        </td>
+                                        <td>
+                                          {isDriverCash ? (
+                                            <span className="badge badge-warning py-0.5 px-2 text-[10px] flex items-center gap-1 w-fit">
+                                              <Truck size={10} /> Driver Ground Cash
+                                            </span>
+                                          ) : (
+                                            <span className="badge badge-info py-0.5 px-2 text-[10px] flex items-center gap-1 w-fit">
+                                              <CreditCard size={10} /> Razorpay Online
+                                            </span>
+                                          )}
+                                        </td>
+                                        <td className="text-xs font-medium text-gray-300">
+                                          {r.assignedDriverName || (r.assignedDriverId ? `Driver #${r.assignedDriverId}` : 'John Doe')}
+                                        </td>
+                                        <td>
+                                          <span className={`badge ${r.paymentStatus === 'Paid' || r.status === 'Collected' || r.status === 'Completed' ? 'badge-paid' : 'badge-pending'}`}>
+                                            {r.paymentStatus || (r.status === 'Collected' || r.status === 'Completed' ? 'Paid' : 'Unpaid')}
+                                          </span>
+                                        </td>
+                                      </tr>
+                                    );
+                                  })
+                                )}
+                              </tbody>
+                            </table>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  )}
+                    );
+                  })()}
 
                   {/* DRIVER LEAVE APPROVALS CENTER */}
                   {activeTab === 'leaves' && (
@@ -3509,31 +4180,46 @@ export default function App() {
                         <h3 className="font-bold text-base">Raise Pickup Request</h3>
                         <form onSubmit={handleCreateRequest} className="flex flex-col gap-4">
                           <div className="flex flex-col gap-1.5">
-                            <label className="text-xs font-semibold text-gray-300">Select Property</label>
+                            <label className="text-xs font-semibold text-gray-300">Select Property (Alphabetical)</label>
                             <select 
                               required
                               value={newRequest.propertyId} 
                               onChange={e => setNewRequest({ ...newRequest, propertyId: e.target.value })}
                             >
                               <option value="">-- Choose Property --</option>
-                              {properties.map(p => (
-                                <option key={p.id} value={p.id}>{p.name}</option>
-                              ))}
+                              {[...properties]
+                                .sort((a, b) => (a.name || '').localeCompare(b.name || '', undefined, { sensitivity: 'base' }))
+                                .map(p => (
+                                  <option key={p.id} value={p.id}>
+                                    {p.name} {p.address ? `(${p.address.split(',')[0]})` : ''}
+                                  </option>
+                                ))}
                             </select>
                           </div>
                           <div className="flex flex-col gap-1.5">
-                            <label className="text-xs font-semibold text-gray-300">Waste Category</label>
+                            <label className="text-xs font-semibold text-gray-300">Waste Category / Resale Option</label>
                             <select 
                               value={newRequest.wasteType} 
                               onChange={e => setNewRequest({ ...newRequest, wasteType: e.target.value })}
                             >
-                              <option value="Organic">Organic / Food Waste</option>
-                              <option value="Recyclable">Recyclable (Paper/Plastic/Metal)</option>
-                              <option value="Hazardous">Hazardous / Chemical</option>
-                              <option value="E-waste">E-waste</option>
-                              <option value="Construction">Construction Demolition</option>
-                              <option value="Other">Other / Solid Mixed</option>
+                              <option value="Organic">Organic / Food Waste (Pickup Service)</option>
+                              <option value="Recyclable">Recyclable Scrap (Sell Plastic, Metal, Paper - Driver Pays You)</option>
+                              <option value="Hazardous">Hazardous / Chemical (Pickup Service)</option>
+                              <option value="E-waste">E-waste / Electronics (Resale Scrap &amp; Recycling)</option>
+                              <option value="Construction">Construction Demolition (Pickup Service)</option>
+                              <option value="Other">Other / Solid Mixed (Pickup Service)</option>
                             </select>
+                            {newRequest.wasteType === 'Recyclable' || newRequest.wasteType === 'E-waste' ? (
+                              <div className="p-2.5 rounded-xl bg-cyan-950/60 border border-cyan-500/30 text-[11px] text-cyan-200 flex items-center gap-1.5 mt-1">
+                                <DollarSign size={14} className="text-cyan-400 shrink-0" />
+                                <span><strong>Resell Scrap Material:</strong> Driver will weigh scrap at collection and pay you cash/UPI on the spot!</span>
+                              </div>
+                            ) : (
+                              <div className="p-2.5 rounded-xl bg-emerald-950/40 border border-emerald-500/20 text-[11px] text-emerald-300 flex items-center gap-1.5 mt-1">
+                                <CreditCard size={14} className="text-emerald-400 shrink-0" />
+                                <span><strong>Waste Pickup Service:</strong> You can pay the collection fee online anytime via Razorpay or pay cash to the driver.</span>
+                              </div>
+                            )}
                           </div>
                           <div className="flex flex-col gap-1.5">
                             <label className="text-xs font-semibold text-gray-300">Estimated Weight (Tons)</label>
@@ -3547,14 +4233,49 @@ export default function App() {
                             />
                           </div>
                           <div className="flex flex-col gap-1.5">
-                            <label className="text-xs font-semibold text-gray-300">Scheduled Date</label>
-                            <input 
-                              type="date" 
-                              required 
-                              value={newRequest.scheduledDate} 
-                              onChange={e => setNewRequest({ ...newRequest, scheduledDate: e.target.value })} 
-                            />
+                            <label className="text-xs font-semibold text-gray-300 flex items-center justify-between">
+                              <span>Scheduled Date</span>
+                              <span className="text-[11px] text-emerald-400 font-normal">Click to pick date</span>
+                            </label>
+                            <div className="relative">
+                              <input 
+                                type="date" 
+                                required 
+                                min={new Date().toISOString().split('T')[0]}
+                                value={newRequest.scheduledDate} 
+                                onClick={(e) => {
+                                  try {
+                                    if (typeof e.currentTarget.showPicker === 'function') {
+                                      e.currentTarget.showPicker();
+                                    }
+                                  } catch (err) {}
+                                }}
+                                onFocus={(e) => {
+                                  try {
+                                    if (typeof e.currentTarget.showPicker === 'function') {
+                                      e.currentTarget.showPicker();
+                                    }
+                                  } catch (err) {}
+                                }}
+                                onChange={e => setNewRequest({ ...newRequest, scheduledDate: e.target.value })} 
+                                className="w-full cursor-pointer pr-10"
+                              />
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  const input = e.currentTarget.previousElementSibling;
+                                  if (input && typeof input.showPicker === 'function') {
+                                    try { input.showPicker(); } catch (err) {}
+                                  }
+                                }}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-emerald-400 opacity-80 hover:opacity-100 p-1 cursor-pointer"
+                                title="Open Calendar"
+                              >
+                                <Calendar size={16} />
+                              </button>
+                            </div>
                           </div>
+
                           {/* Dynamic Cost Estimate Preview */}
                           {pricingSettings && (
                             <div className="p-3 rounded-xl bg-white/2 border border-white/5 flex flex-col gap-1.5 text-xs">
@@ -3595,54 +4316,67 @@ export default function App() {
                               </tr>
                             </thead>
                             <tbody>
-                              {requests.map(r => (
-                                <tr key={r.id}>
-                                  <td>
-                                    <div className="font-bold text-white">{r.wasteType}</div>
-                                    <div className="text-[10px] text-gray-400">{r.propertyName}</div>
-                                  </td>
-                                  <td className="font-semibold text-white">{r.wasteQuantity}t</td>
-                                  <td>{r.scheduledDate}</td>
-                                  <td className="font-semibold text-emerald-400">
-                                    ₹{r.amount}
-                                    {r.distanceKm > 0 && (
-                                      <div className="text-[10px] text-gray-400 font-normal">
-                                        Dist: {r.distanceKm}km (Trans: ₹{r.transportFee})
-                                      </div>
-                                    )}
-                                  </td>
-                                  <td>
-                                    <span className={`badge ${r.status === 'Pending' ? 'badge-pending' : r.status === 'Assigned' ? 'badge-assigned' : r.status === 'Collected' ? 'badge-collected' : 'badge-completed'}`}>
-                                      {r.status}
-                                    </span>
-                                  </td>
-                                  <td className="text-right">
-                                    <div className="flex items-center justify-end gap-2">
-                                      <button
-                                        onClick={() => setViewOrderModalReq(r)}
-                                        className="btn-secondary py-1 px-2.5 text-xs flex items-center gap-1 border-white/10 hover:border-emerald-500/40 hover:text-emerald-400"
-                                        title="View Order Details"
-                                      >
-                                        <FileText size={13} /> Details
-                                      </button>
-                                      {r.paymentStatus && r.paymentStatus.includes('Paid') ? (
-                                        <span className="badge badge-paid">{r.paymentStatus}</span>
-                                      ) : r.wasteType === 'Organic' ? (
-                                        <button 
-                                          onClick={() => handleRazorpayCheckout(r)} 
-                                          className="btn-primary py-1 px-3.5 text-xs font-bold flex items-center gap-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 shadow-md"
-                                        >
-                                          <DollarSign size={13} /> Pay Online / Cash to Driver
-                                        </button>
-                                      ) : (
-                                        <span className="badge badge-info py-1 px-2.5 text-[11px]" title="Driver will weigh at destination & pay you directly">
-                                          💰 Driver Pays User at Scale
-                                        </span>
-                                      )}
-                                    </div>
+                              {requests.length === 0 ? (
+                                <tr>
+                                  <td colSpan="6" className="text-center text-xs text-gray-400 italic py-8">
+                                    No pickup requests created yet.
                                   </td>
                                 </tr>
-                              ))}
+                              ) : (
+                                requests.map(r => (
+                                  <tr key={r.id}>
+                                    <td>
+                                      <div className="font-bold text-white">{r.wasteType}</div>
+                                      <div className="text-[10px] text-gray-400">{r.propertyName}</div>
+                                    </td>
+                                    <td className="font-semibold text-white">{r.wasteQuantity}t</td>
+                                    <td>{r.scheduledDate}</td>
+                                    <td className="font-semibold text-emerald-400">
+                                      ₹{r.amount}
+                                      {r.distanceKm > 0 && (
+                                        <div className="text-[10px] text-gray-400 font-normal">
+                                          Dist: {r.distanceKm}km (Trans: ₹{r.transportFee})
+                                        </div>
+                                      )}
+                                    </td>
+                                    <td>
+                                      <span className={`badge ${r.status === 'Pending' ? 'badge-pending' : r.status === 'Assigned' ? 'badge-assigned' : r.status === 'Collected' ? 'badge-collected' : 'badge-completed'}`}>
+                                        {r.status}
+                                      </span>
+                                    </td>
+                                    <td className="text-right">
+                                      <div className="flex items-center justify-end gap-2">
+                                        <button
+                                          onClick={() => setViewOrderModalReq(r)}
+                                          className="btn-secondary py-1 px-2.5 text-xs flex items-center gap-1 border-white/10 hover:border-emerald-500/40 hover:text-emerald-400"
+                                          title="View Order Details"
+                                        >
+                                          <FileText size={13} /> Details
+                                        </button>
+                                        {r.wasteType === 'Recyclable' ? (
+                                          r.paymentStatus && r.paymentStatus.includes('Paid') ? (
+                                            <span className="badge badge-paid">💰 Payout Received (₹{r.paymentDetails?.amountPaidToUser || r.amount})</span>
+                                          ) : (
+                                            <span className="badge badge-info py-1 px-2.5 text-[11px] font-semibold" title="Driver will weigh at destination & pay you directly">
+                                              💰 Resell Scrap (Driver Pays ₹{r.amount})
+                                            </span>
+                                          )
+                                        ) : r.paymentStatus && (r.paymentStatus === 'Paid' || r.paymentStatus.includes('Paid')) ? (
+                                          <span className="badge badge-paid">✅ Paid (₹{r.amount})</span>
+                                        ) : (
+                                          <button 
+                                            onClick={() => handleRazorpayCheckout(r)} 
+                                            className="btn-primary py-1.5 px-3 text-xs font-bold flex items-center gap-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 shadow-md text-white"
+                                            title="Pay Pickup Fee via Razorpay (UPI / Card / NetBanking)"
+                                          >
+                                            <CreditCard size={13} /> Pay Fee (₹{r.amount})
+                                          </button>
+                                        )}
+                                      </div>
+                                    </td>
+                                  </tr>
+                                ))
+                              )}
                             </tbody>
                           </table>
                         </div>
@@ -3803,68 +4537,94 @@ export default function App() {
                               {/* Right: weight form or collected status */}
                               <div className="w-full lg:w-96 shrink-0">
                                 {r.status === 'Assigned' ? (
-                                  <form 
-                                    onSubmit={(e) => {
-                                      const cat = collectCategory || r.wasteType;
-                                      const isFood = cat === 'Organic';
-                                      handleCollectionSubmit(e, r.id, r.wasteType, {
-                                        driverCollectedFromUser: isFood,
-                                        driverPaidToUserAmount: !isFood ? Math.round((parseFloat(collectWeight) || r.wasteQuantity) * (pricingSettings?.recyclableRate || 500)) : 0
-                                      });
-                                    }} 
-                                    className="flex flex-col gap-3 p-5 bg-slate-900 border border-emerald-500/40 rounded-2xl shadow-xl"
-                                  >
-                                    <div className="flex flex-col gap-1.5">
-                                      <label className="text-[11px] uppercase font-extrabold text-emerald-400 tracking-wider">Waste Category Type</label>
-                                      <select 
-                                        value={collectCategory || r.wasteType}
-                                        onChange={e => setCollectCategory(e.target.value)}
-                                        className="py-2 px-3 text-xs bg-slate-950 border border-white/20 text-white rounded-xl font-bold"
+                                  (() => {
+                                    const remainingDays = getRemainingDays(r.scheduledDate);
+                                    const isReady = isScheduledDateOrPast(r.scheduledDate);
+                                    if (!isReady) {
+                                      return (
+                                        <div className="p-5 bg-emerald-950/40 border border-emerald-500/30 text-emerald-300 rounded-2xl flex flex-col items-center justify-center gap-4 text-center">
+                                          <MapPin size={32} className="text-emerald-500/50" />
+                                          <div>
+                                            <p className="font-bold text-base text-white">
+                                              Trip Scheduled ({remainingDays} {remainingDays === 1 ? 'day' : 'days'} remaining)
+                                            </p>
+                                            <p className="text-xs text-emerald-200/70 mt-1">
+                                              Scheduled for {r.scheduledDate} · Link locked until scheduled date
+                                            </p>
+                                          </div>
+                                          <button 
+                                            disabled 
+                                            className="w-full py-3 bg-emerald-950/80 border border-emerald-500/30 text-emerald-400/60 font-bold text-xs tracking-wide flex items-center justify-center gap-2 rounded-xl cursor-not-allowed opacity-60"
+                                          >
+                                            <Navigation size={16} className="text-emerald-500/40" /> 🔒 Start Trip &amp; Open Live Map ({remainingDays} {remainingDays === 1 ? 'day' : 'days'} remaining)
+                                          </button>
+                                        </div>
+                                      );
+                                    }
+                                    return (
+                                      <form 
+                                        onSubmit={(e) => {
+                                          const cat = collectCategory || r.wasteType;
+                                          const isFood = cat === 'Organic';
+                                          handleCollectionSubmit(e, r.id, r.wasteType, {
+                                            driverCollectedFromUser: isFood,
+                                            driverPaidToUserAmount: !isFood ? Math.round((parseFloat(collectWeight) || r.wasteQuantity) * (pricingSettings?.recyclableRate || 500)) : 0
+                                          });
+                                        }} 
+                                        className="flex flex-col gap-3 p-5 bg-slate-900 border border-emerald-500/40 rounded-2xl shadow-xl"
                                       >
-                                        <option value="Organic">Organic / Food Waste (User Pays Driver)</option>
-                                        <option value="Recyclable">Recyclable (Driver Pays User from Admin Funds)</option>
-                                        <option value="Hazardous">Hazardous (Driver Pays User from Admin Funds)</option>
-                                        <option value="E-waste">E-waste (Driver Pays User from Admin Funds)</option>
-                                        <option value="Construction">Construction (Driver Pays User from Admin Funds)</option>
-                                        <option value="Other">Other Solid (Driver Pays User from Admin Funds)</option>
-                                      </select>
-                                    </div>
+                                        <div className="flex flex-col gap-1.5">
+                                          <label className="text-[11px] uppercase font-extrabold text-emerald-400 tracking-wider">Waste Category Type</label>
+                                          <select 
+                                            value={collectCategory || r.wasteType}
+                                            onChange={e => setCollectCategory(e.target.value)}
+                                            className="py-2 px-3 text-xs bg-slate-950 border border-white/20 text-white rounded-xl font-bold"
+                                          >
+                                            <option value="Organic">Organic / Food Waste (User Pays Driver)</option>
+                                            <option value="Recyclable">Recyclable (Driver Pays User from Admin Funds)</option>
+                                            <option value="Hazardous">Hazardous (Driver Pays User from Admin Funds)</option>
+                                            <option value="E-waste">E-waste (Driver Pays User from Admin Funds)</option>
+                                            <option value="Construction">Construction (Driver Pays User from Admin Funds)</option>
+                                            <option value="Other">Other Solid (Driver Pays User from Admin Funds)</option>
+                                          </select>
+                                        </div>
 
-                                    <div className="flex flex-col gap-1.5">
-                                      <label className="text-[11px] uppercase font-extrabold text-emerald-400 tracking-wider">Destination Scale Weight (Tons)</label>
-                                      <input 
-                                        type="number" 
-                                        step="0.1" 
-                                        required 
-                                        placeholder="Exact measured weight (e.g. 5.1)"
-                                        value={collectWeight} 
-                                        onChange={e => setCollectWeight(e.target.value)} 
-                                        className="py-2 px-3 text-sm font-mono font-bold bg-slate-950 text-white border border-white/20 rounded-xl"
-                                      />
-                                    </div>
+                                        <div className="flex flex-col gap-1.5">
+                                          <label className="text-[11px] uppercase font-extrabold text-emerald-400 tracking-wider">Destination Scale Weight (Tons)</label>
+                                          <input 
+                                            type="number" 
+                                            step="0.1" 
+                                            required 
+                                            placeholder="Exact measured weight (e.g. 5.1)"
+                                            value={collectWeight} 
+                                            onChange={e => setCollectWeight(e.target.value)} 
+                                            className="py-2 px-3 text-sm font-mono font-bold bg-slate-950 text-white border border-white/20 rounded-xl"
+                                          />
+                                        </div>
 
-                                    {/* Payment Flow Helper Banner */}
-                                    {(collectCategory || r.wasteType) === 'Organic' ? (
-                                      <div className="p-3 rounded-xl bg-amber-950/60 border border-amber-500/40 text-xs text-amber-200 flex flex-col gap-1">
-                                        <span className="font-bold flex items-center gap-1 text-amber-400"><DollarSign size={13}/> Food Waste Rule:</span>
-                                        <span>User pays Driver ₹{(r.amount || 100)} (Base + Weight) upon pickup.</span>
-                                      </div>
-                                    ) : (
-                                      <div className="p-3 rounded-xl bg-emerald-950/60 border border-emerald-500/40 text-xs text-emerald-200 flex flex-col gap-1">
-                                        <span className="font-bold flex items-center gap-1 text-emerald-400"><DollarSign size={13}/> Non-Food Waste Rule:</span>
-                                        <span>Admin dispatched ₹{r.adminDispatchedFunds || r.amount || 500} funds. Weigh at destination &amp; pay User ₹{Math.round((parseFloat(collectWeight) || r.wasteQuantity) * (pricingSettings?.recyclableRate || 500))} payout!</span>
-                                      </div>
-                                    )}
+                                        {/* Payment Flow Helper Banner */}
+                                        {(collectCategory || r.wasteType) === 'Organic' ? (
+                                          <div className="p-3 rounded-xl bg-amber-950/60 border border-amber-500/40 text-xs text-amber-200 flex flex-col gap-1">
+                                            <span className="font-bold flex items-center gap-1 text-amber-400"><DollarSign size={13}/> Food Waste Rule:</span>
+                                            <span>User pays Driver ₹{(r.amount || 100)} (Base + Weight) upon pickup.</span>
+                                          </div>
+                                        ) : (
+                                          <div className="p-3 rounded-xl bg-emerald-950/60 border border-emerald-500/40 text-xs text-emerald-200 flex flex-col gap-1">
+                                            <span className="font-bold flex items-center gap-1 text-emerald-400"><DollarSign size={13}/> Non-Food Waste Rule:</span>
+                                            <span>Admin dispatched ₹{r.adminDispatchedFunds || r.amount || 500} funds. Weigh at destination &amp; pay User ₹{Math.round((parseFloat(collectWeight) || r.wasteQuantity) * (pricingSettings?.recyclableRate || 500))} payout!</span>
+                                          </div>
+                                        )}
 
-                                    <button type="submit" className="btn-primary py-3 px-4 text-xs font-bold w-full mt-1 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 shadow-lg">
-                                      {(collectCategory || r.wasteType) === 'Organic' ? 'Collect Food Waste & Cash' : 'Set Weight & Pay User'}
-                                    </button>
-                                  </form>
+                                        <button type="submit" className="btn-primary py-3 px-4 text-xs font-bold w-full mt-1 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 shadow-lg">
+                                          {(collectCategory || r.wasteType) === 'Organic' ? 'Collect Food Waste & Cash' : 'Set Weight & Pay User'}
+                                        </button>
+                                      </form>                                      );
+                                  })()
                                 ) : (
                                   <div className="p-5 bg-emerald-950/60 border border-emerald-500/30 text-emerald-300 rounded-2xl text-center text-xs font-semibold flex flex-col gap-3">
                                     <div>
                                       <CheckCircle className="mx-auto mb-1 text-emerald-400" size={24} />
-                                      <span className="text-sm font-bold text-white block">Waste Collected &amp; Verified</span>
+                                      <span className="text-sm font-bold text-white block">Waste Collected & Verified</span>
                                       <span>Scaled Weight: {r.weight} Tons</span>
                                     </div>
                                     <span className="text-xs text-emerald-400 font-mono font-bold bg-white/5 py-1 px-3 rounded-lg border border-emerald-500/20">
@@ -3875,7 +4635,7 @@ export default function App() {
                                       onClick={() => setCollectionReceiptModal(r)}
                                       className="btn-secondary py-2 px-4 text-xs flex items-center justify-center gap-2 border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/20 font-bold mt-1"
                                     >
-                                      <FileText size={14} /> View Receipt &amp; QR
+                                      <FileText size={14} /> View Receipt & QR
                                     </button>
                                   </div>
                                 )}
@@ -3900,7 +4660,7 @@ export default function App() {
                       <div className="glass p-6 rounded-2xl border border-white/5 flex flex-col gap-4 h-fit">
                         <div>
                           <h2 className="text-lg font-bold text-white">Apply for Leave</h2>
-                          <p className="text-xs text-gray-400">Submit a formal leave request for Admin review &amp; approval.</p>
+                          <p className="text-xs text-gray-400">Submit a formal leave request for Admin review & approval.</p>
                         </div>
 
                         <form onSubmit={handleDriverLeaveSubmit} className="flex flex-col gap-4">
@@ -4136,47 +4896,161 @@ export default function App() {
               {user.role === 'Operator' && (
                 <div className="animate-fade-in flex flex-col gap-6">
 
-                  {/* INCOMING INTALL LOG & SEGREGATE */}
+                  {/* INCOMING INTAKE LOG & SEGREGATE */}
                   {activeTab === 'overview' && (
-                    <div className="flex flex-col gap-4 animate-fade-in">
-                      <h2 className="text-xl font-bold">Facility Intake Control</h2>
-                      <div className="glass border border-white/5 rounded-2xl overflow-hidden">
+                    <div className="flex flex-col gap-6 animate-fade-in">
+                      
+                      {/* Top Header & Simulation Trigger */}
+                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div>
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="badge badge-success text-xs font-mono font-bold uppercase tracking-wider">Plant Processing Station</span>
+                            <span className="text-xs text-gray-400">· Facility Waste Intake Command</span>
+                          </div>
+                          <h2 className="text-2xl font-black text-white tracking-wide flex items-center gap-2.5">
+                            <Activity className="text-emerald-400" size={24} /> Facility Intake &amp; Segregation Control
+                          </h2>
+                          <p className="text-xs text-gray-300 mt-1">
+                            Receive waste deliveries from transporter drivers, verify scale weights, and log recycling segregation.
+                          </p>
+                        </div>
+
+                        <div className="flex items-center gap-2.5 shrink-0">
+                          <button
+                            type="button"
+                            onClick={handleSimulateOperatorDelivery}
+                            className="btn-secondary py-2 px-3.5 text-xs font-bold flex items-center gap-1.5 border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/10 shadow-md"
+                            title="Simulate a driver delivering a 5-ton truck load to test this dashboard"
+                          >
+                            <Truck size={14} /> ⚡ Simulate Truck Arrival
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* 3-Step Visual Workflow Guide Banner */}
+                      <div className="p-5 rounded-2xl bg-gradient-to-r from-emerald-950/60 via-slate-900/80 to-teal-950/50 border border-emerald-500/30 shadow-xl flex flex-col gap-3">
+                        <div className="flex items-center justify-between">
+                          <h4 className="text-xs font-black uppercase tracking-widest text-emerald-300 flex items-center gap-2">
+                            <span>💡</span> How the Operator Module Works (3 Simple Steps)
+                          </h4>
+                          <span className="text-[11px] text-gray-400 font-medium">End-to-End Processing Flow</span>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1">
+                          <div className="p-3.5 rounded-xl bg-white/5 border border-white/5 flex items-start gap-3">
+                            <div className="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-black text-sm shrink-0 border border-emerald-500/30">
+                              1
+                            </div>
+                            <div className="flex flex-col gap-0.5">
+                              <span className="text-xs font-bold text-white">Driver Arrives at Gate</span>
+                              <span className="text-[11px] text-gray-300 leading-relaxed">
+                                Transporter driver weighs waste at customer property and delivers load (Status: <strong className="text-cyan-300">Collected</strong>).
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="p-3.5 rounded-xl bg-white/5 border border-white/5 flex items-start gap-3">
+                            <div className="w-8 h-8 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-black text-sm shrink-0 border border-cyan-500/30">
+                              2
+                            </div>
+                            <div className="flex flex-col gap-0.5">
+                              <span className="text-xs font-bold text-white">Verify &amp; Segregate</span>
+                              <span className="text-[11px] text-gray-300 leading-relaxed">
+                                Click <strong className="text-emerald-300">"Verify &amp; Segregate"</strong>, choose receiving plant, and confirm Organic/Recyclable proportions.
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="p-3.5 rounded-xl bg-white/5 border border-white/5 flex items-start gap-3">
+                            <div className="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-black text-sm shrink-0 border border-amber-500/30">
+                              3
+                            </div>
+                            <div className="flex flex-col gap-0.5">
+                              <span className="text-xs font-bold text-white">Capacity &amp; Notifications</span>
+                              <span className="text-[11px] text-gray-300 leading-relaxed">
+                                Plant load updates automatically, request becomes <strong className="text-emerald-300">Completed</strong>, and Admin is notified.
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Active Deliveries Waiting for Intake */}
+                      <div className="glass border border-white/5 rounded-2xl overflow-hidden shadow-xl">
+                        <div className="p-4 px-6 border-b border-white/5 flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Truck size={18} className="text-emerald-400" />
+                            <h3 className="text-base font-bold text-white">Incoming Transporters Waiting at Gate</h3>
+                          </div>
+                          <span className="badge badge-info text-xs font-mono font-bold">
+                            {requests.filter(r => r.status === 'Collected').length} Trucks in Queue
+                          </span>
+                        </div>
+
                         <div className="table-container">
                           <table>
                             <thead>
                               <tr>
-                                <th>User</th>
-                                <th>Waste Type</th>
-                                <th>Arrived Tons</th>
-                                <th>Trip Driver</th>
+                                <th>Order Ref &amp; Customer</th>
+                                <th>Waste Category</th>
+                                <th>Measured Tonnage</th>
+                                <th>Transporter Driver</th>
+                                <th>Intake Status</th>
                                 <th className="text-right">Action</th>
                               </tr>
                             </thead>
                             <tbody>
                               {requests.filter(r => r.status === 'Collected').map(r => (
-                                <tr key={r.id}>
+                                <tr key={r.id} className="hover:bg-white/5 transition-colors">
                                   <td>
-                                    <div className="font-bold">{r.generatorName}</div>
-                                    <div className="text-xs text-gray-400">{r.propertyName}</div>
+                                    <div className="font-bold text-white text-sm">{r.generatorName}</div>
+                                    <div className="text-xs text-gray-400">{r.propertyName} · {r.propertyAddress}</div>
+                                    <span className="text-[10px] text-emerald-400 font-mono font-bold">REF: #{r.id.slice(-8)}</span>
                                   </td>
-                                  <td>{r.wasteType}</td>
-                                  <td className="font-bold text-white">{r.weight} Tons</td>
-                                  <td>Driver ID: {r.assignedDriverId}</td>
+                                  <td>
+                                    <span className={`badge ${r.wasteType === 'Organic' ? 'badge-warning' : 'badge-info'} text-xs font-bold`}>
+                                      {r.wasteType} Waste
+                                    </span>
+                                  </td>
+                                  <td>
+                                    <span className="text-base font-mono font-black text-emerald-400">
+                                      {r.weight || r.wasteQuantity} Tons
+                                    </span>
+                                  </td>
+                                  <td>
+                                    <div className="text-xs font-bold text-gray-200">
+                                      {r.assignedDriverId ? `Driver #${r.assignedDriverId.slice(-6)}` : 'Fleet Transporter'}
+                                    </div>
+                                    <div className="text-[10px] text-gray-400">Vehicle: {r.assignedVehicleId || 'TRK-9844'}</div>
+                                  </td>
+                                  <td>
+                                    <span className="badge badge-collected text-xs animate-pulse">
+                                      Waiting at Gate
+                                    </span>
+                                  </td>
                                   <td className="text-right">
                                     <button 
                                       onClick={() => {
                                         setOperatorRecordReq(r);
-                                        // Default segregation suggestion based on weight (e.g. 80% organic, 10% recyclable, 10% residual)
-                                        const w = r.weight;
-                                        setSegregationInput({
-                                          organicWeight: (w * 0.8).toFixed(1),
-                                          recyclableWeight: (w * 0.1).toFixed(1),
-                                          residualWeight: (w * 0.1).toFixed(1)
-                                        });
+                                        const w = parseFloat(r.weight || r.wasteQuantity || 5);
+                                        if (r.wasteType === 'Organic') {
+                                          setSegregationInput({
+                                            organicWeight: (w * 0.85).toFixed(1),
+                                            recyclableWeight: (w * 0.10).toFixed(1),
+                                            residualWeight: (w * 0.05).toFixed(1)
+                                          });
+                                        } else {
+                                          setSegregationInput({
+                                            organicWeight: '0.0',
+                                            recyclableWeight: (w * 0.90).toFixed(1),
+                                            residualWeight: (w * 0.10).toFixed(1)
+                                          });
+                                        }
+                                        if (plants.length > 0) setSelectedPlantId(plants[0].id);
                                       }} 
-                                      className="btn-primary py-1.5 px-3 text-xs"
+                                      className="btn-primary py-2 px-4 text-xs font-bold flex items-center gap-1.5 ml-auto bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 shadow-lg"
                                     >
-                                      Record Segregation
+                                      <CheckCircle size={14} /> Verify &amp; Segregate
                                     </button>
                                   </td>
                                 </tr>
@@ -4184,8 +5058,21 @@ export default function App() {
 
                               {requests.filter(r => r.status === 'Collected').length === 0 && (
                                 <tr>
-                                  <td colSpan="5" className="text-center py-10 text-sm text-gray-500 italic">
-                                    No incoming transporters currently waiting at the gate.
+                                  <td colSpan="6" className="text-center py-12 text-sm text-gray-400">
+                                    <div className="flex flex-col items-center gap-2">
+                                      <CheckCircle size={32} className="text-emerald-500/50" />
+                                      <span className="font-bold text-gray-200">No transporter trucks currently waiting at the gate.</span>
+                                      <span className="text-xs text-gray-400 max-w-md">
+                                        When a driver marks waste as collected from a customer property, the order appears here for operator intake.
+                                      </span>
+                                      <button
+                                        type="button"
+                                        onClick={handleSimulateOperatorDelivery}
+                                        className="mt-2 btn-secondary py-1.5 px-3 text-xs text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/10"
+                                      >
+                                        ⚡ Click to Simulate Sample Delivery (5 Tons)
+                                      </button>
+                                    </div>
                                   </td>
                                 </tr>
                               )}
@@ -4193,35 +5080,125 @@ export default function App() {
                           </table>
                         </div>
                       </div>
+
+                      {/* Completed Intakes & Recycling Records */}
+                      <div className="glass border border-white/5 rounded-2xl overflow-hidden shadow-xl">
+                        <div className="p-4 px-6 border-b border-white/5 flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Activity size={18} className="text-cyan-400" />
+                            <h3 className="text-base font-bold text-white">Processed Intake History &amp; Recycling Logs</h3>
+                          </div>
+                          <span className="text-xs text-gray-400">
+                            Total Processed: {plantDeliveries.length} Loads
+                          </span>
+                        </div>
+
+                        <div className="table-container">
+                          <table>
+                            <thead>
+                              <tr>
+                                <th>Delivery Ref</th>
+                                <th>Receiving Facility</th>
+                                <th>Total Weight</th>
+                                <th>Segregated Breakdown</th>
+                                <th>Processed At</th>
+                                <th className="text-right">Status</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {plantDeliveries.length === 0 ? (
+                                <tr>
+                                  <td colSpan="6" className="text-center py-10 text-xs text-gray-500 italic">
+                                    No completed plant deliveries recorded yet.
+                                  </td>
+                                </tr>
+                              ) : (
+                                plantDeliveries.map(d => (
+                                  <tr key={d.id} className="hover:bg-white/5">
+                                    <td>
+                                      <span className="font-mono text-xs font-bold text-emerald-400">#{d.id?.slice(-8)}</span>
+                                      <div className="text-[10px] text-gray-400">Req: #{d.requestId?.slice(-6)}</div>
+                                    </td>
+                                    <td>
+                                      <div className="font-bold text-white text-xs">{d.plantName || 'Eco Processing Hub'}</div>
+                                      <div className="text-[10px] text-gray-400">{d.wasteType || 'Mixed'} Facility</div>
+                                    </td>
+                                    <td>
+                                      <span className="font-mono font-bold text-sm text-white">{d.weight} Tons</span>
+                                    </td>
+                                    <td>
+                                      <div className="flex items-center gap-2 text-[11px]">
+                                        <span className="text-emerald-400 font-semibold font-mono">🌱 {d.segregationInfo?.organicWeight || 0}t Org</span>
+                                        <span className="text-cyan-400 font-semibold font-mono">♻️ {d.segregationInfo?.recyclableWeight || 0}t Rec</span>
+                                        <span className="text-gray-400 font-semibold font-mono">🗑️ {d.segregationInfo?.residualWeight || 0}t Res</span>
+                                      </div>
+                                    </td>
+                                    <td>
+                                      <div className="text-xs text-gray-300">
+                                        {d.approvedAt ? new Date(d.approvedAt).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }) : 'Recently'}
+                                      </div>
+                                    </td>
+                                    <td className="text-right">
+                                      <span className="badge badge-success text-[10px] font-bold">
+                                        ✓ Processed &amp; Stored
+                                      </span>
+                                    </td>
+                                  </tr>
+                                ))
+                              )}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+
                     </div>
                   )}
 
                   {/* PLANT CAPACITIES & STATUS */}
                   {activeTab === 'plants' && (
-                    <div className="glass p-6 border border-white/5 rounded-2xl flex flex-col gap-6">
-                      <h2 className="text-xl font-bold">Plant Processing Dashboard</h2>
+                    <div className="glass p-6 border border-white/5 rounded-2xl flex flex-col gap-6 animate-fade-in">
+                      <div className="flex justify-between items-center pb-2 border-b border-white/5">
+                        <div>
+                          <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                            <Settings size={20} className="text-emerald-400" /> Plant Capacities &amp; Utilization Meters
+                          </h2>
+                          <p className="text-xs text-gray-400">Real-time load capacities and storage meters across all disposal facilities.</p>
+                        </div>
+                        <span className="badge badge-success text-xs">
+                          {plants.length} Registered Plants
+                        </span>
+                      </div>
                       
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {plants.map(p => {
-                          const percent = Math.round((p.currentLoad / p.capacity) * 100);
+                          const percent = Math.min(100, Math.round(((p.currentLoad || 0) / (p.capacity || 100)) * 100));
                           return (
-                            <div key={p.id} className="p-5 border border-white/5 rounded-xl bg-slate-900/50 flex flex-col gap-3">
+                            <div key={p.id} className="p-6 border border-white/5 rounded-2xl bg-slate-900/60 shadow-lg flex flex-col gap-4">
                               <div className="flex justify-between items-start">
                                 <div>
-                                  <h4 className="font-bold text-white">{p.name}</h4>
-                                  <span className="text-xs text-gray-400">{p.location}</span>
+                                  <h4 className="font-bold text-lg text-white">{p.name}</h4>
+                                  <span className="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
+                                    <MapPin size={12} className="text-emerald-400" /> {p.location}
+                                  </span>
                                 </div>
-                                <span className="badge badge-info">{p.type}</span>
+                                <span className="badge badge-info text-xs">{p.type}</span>
                               </div>
-                              <div className="flex justify-between text-xs text-gray-400 font-semibold mt-2">
-                                <span>Utilization: {percent}%</span>
-                                <span>{p.currentLoad}t / {p.capacity}t Capacity</span>
+
+                              <div className="flex justify-between text-xs text-gray-300 font-semibold mt-1">
+                                <span>Capacity Utilization: <strong className={percent > 80 ? 'text-red-400' : 'text-emerald-400'}>{percent}%</strong></span>
+                                <span className="font-mono text-white">{p.currentLoad || 0}t / {p.capacity}t Total</span>
                               </div>
-                              <div className="w-full bg-slate-950 h-2.5 rounded-full overflow-hidden border border-white/5">
+
+                              <div className="w-full bg-slate-950 h-3.5 rounded-full overflow-hidden border border-white/10 p-0.5">
                                 <div 
-                                  className={`h-full rounded-full transition-all duration-300 ${percent > 80 ? 'bg-red-500' : 'bg-emerald-500'}`} 
+                                  className={`h-full rounded-full transition-all duration-500 ${percent > 80 ? 'bg-gradient-to-r from-amber-500 to-red-500' : 'bg-gradient-to-r from-emerald-500 to-cyan-500'}`} 
                                   style={{ width: `${percent}%` }}
                                 ></div>
+                              </div>
+
+                              <div className="flex justify-between items-center text-[11px] text-gray-400 pt-2 border-t border-white/5">
+                                <span>Remaining Space: <strong className="text-emerald-300">{Math.max(0, p.capacity - (p.currentLoad || 0)).toFixed(1)} Tons</strong></span>
+                                <span className="badge badge-active text-[10px]">Operating Status: Normal</span>
                               </div>
                             </div>
                           );
@@ -4514,11 +5491,23 @@ export default function App() {
                                         <Trash2 size={13} />
                                       </button>
                                     )}
+                                    {item.status === 'Sold' ? (
+                                      <span className="badge badge-error text-[10px] font-bold px-2 py-1">
+                                        SOLD
+                                      </span>
+                                    ) : user?.role === 'Generator' ? (
+                                      <button 
+                                        onClick={() => handleMarketplaceRazorpayCheckout(item)}
+                                        className="btn-primary py-2 px-3 text-xs font-extrabold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg rounded-xl shrink-0 flex items-center gap-1"
+                                      >
+                                        <DollarSign size={13} /> Buy via Razorpay
+                                      </button>
+                                    ) : null}
                                     <button 
                                       onClick={() => setSelectedMarketplaceItem(item)}
-                                      className="btn-primary py-2 px-3.5 text-xs font-extrabold bg-gradient-to-r from-amber-500 to-emerald-500 hover:from-amber-400 hover:to-emerald-400 text-slate-950 shadow-lg rounded-xl shrink-0"
+                                      className="btn-secondary py-2 px-3 text-xs font-bold rounded-xl shrink-0"
                                     >
-                                      Buy &amp; Contact
+                                      Details
                                     </button>
                                   </div>
                                 </div>
@@ -5663,10 +6652,28 @@ export default function App() {
                   href={`https://wa.me/${selectedMarketplaceItem.contactPhone?.replace(/[^0-9]/g, '') || '919876543210'}?text=Hi%20${encodeURIComponent(selectedMarketplaceItem.sellerName)},%20I%20am%20interested%20in%20buying%20your%20OLX%20listing:%20${encodeURIComponent(selectedMarketplaceItem.title)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="btn-primary py-3 px-4 text-xs font-extrabold w-full text-center bg-gradient-to-r from-emerald-500 to-teal-600 shadow-lg flex items-center justify-center gap-2"
+                  className="btn-secondary py-3 px-4 text-xs font-bold w-1/2 text-center flex items-center justify-center gap-2"
                 >
-                  <Send size={14} /> Contact Seller via WhatsApp / Call
+                  <Send size={14} /> Contact Seller
                 </a>
+
+                {selectedMarketplaceItem.status === 'Sold' ? (
+                  <div className="btn-disabled py-3 px-4 text-xs font-extrabold w-1/2 text-center bg-slate-800 text-gray-400 border border-gray-700 rounded-xl flex items-center justify-center gap-2 cursor-not-allowed">
+                    <CheckCircle size={14} className="text-emerald-400" /> SOLD
+                  </div>
+                ) : user?.role === 'Generator' ? (
+                  <button
+                    type="button"
+                    onClick={() => handleMarketplaceRazorpayCheckout(selectedMarketplaceItem)}
+                    className="btn-primary py-3 px-4 text-xs font-extrabold w-1/2 text-center bg-gradient-to-r from-blue-600 via-indigo-600 to-emerald-600 shadow-lg hover:brightness-110 flex items-center justify-center gap-2 transition-all"
+                  >
+                    <DollarSign size={14} /> Buy via Razorpay (₹{selectedMarketplaceItem.price?.toLocaleString('en-IN')})
+                  </button>
+                ) : (
+                  <div className="py-3 px-3 text-[11px] font-semibold w-1/2 text-center bg-amber-950/40 text-amber-300 border border-amber-500/30 rounded-xl flex items-center justify-center">
+                    Buy option is only for Users
+                  </div>
+                )}
               </div>
             </div>
 
@@ -5674,6 +6681,324 @@ export default function App() {
         </div>
       )}
 
+      {/* DIALOG 8: ADMIN REVIEW DRIVER LEAVE MODAL */}
+      {reviewLeaveModal && (
+        <div 
+          style={{
+            position: 'fixed',
+            top: 0, left: 0, right: 0, bottom: 0,
+            zIndex: 99999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            backdropFilter: 'blur(8px)',
+            padding: '16px',
+          }}
+          onClick={(e) => { if (e.target === e.currentTarget) setReviewLeaveModal(null); }}
+        >
+          <div 
+            className="animate-fade-in"
+            style={{
+              width: '100%',
+              maxWidth: '480px',
+              background: '#0d1a12',
+              borderRadius: '24px',
+              border: '1.5px solid rgba(0, 230, 118, 0.3)',
+              boxShadow: '0 32px 80px rgba(0,0,0,0.9)',
+              overflow: 'hidden',
+              display: 'flex',
+              flexDirection: 'column',
+            }}
+          >
+            {/* Modal Header */}
+            <div style={{
+              background: 'linear-gradient(135deg, #1b4332 0%, #2d6a4f 100%)',
+              padding: '20px 24px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              borderBottom: '1px solid rgba(255,255,255,0.1)',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{
+                  background: 'rgba(255,255,255,0.15)',
+                  borderRadius: '12px',
+                  width: '36px', height: '36px',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}>
+                  <Calendar size={20} color="#52b788" />
+                </div>
+                <div>
+                  <h3 style={{ fontWeight: 800, fontSize: '1.05rem', color: '#ffffff', margin: 0 }}>
+                    Review Driver Leave
+                  </h3>
+                  <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.75rem', margin: 0 }}>
+                    Applicant: {reviewLeaveModal.driverName}
+                  </p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setReviewLeaveModal(null)}
+                style={{
+                  background: 'rgba(255,255,255,0.12)', border: 'none', borderRadius: '50%',
+                  width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  cursor: 'pointer', color: '#ffffff'
+                }}
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            {/* Content Body */}
+            <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div style={{ padding: '14px', borderRadius: '12px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div className="flex justify-between text-xs">
+                  <span className="text-gray-400 font-bold uppercase">Leave Category:</span>
+                  <span className="text-emerald-400 font-bold">{reviewLeaveModal.leaveType} Leave</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-gray-400 font-bold uppercase">Leave Dates:</span>
+                  <span className="text-white font-bold">{reviewLeaveModal.startDate} to {reviewLeaveModal.endDate}</span>
+                </div>
+                <div className="flex flex-col gap-1 border-t border-white/5 pt-2 text-xs">
+                  <span className="text-gray-400 font-bold uppercase text-[10px]">Reason Statement:</span>
+                  <span className="text-gray-200 font-medium">{reviewLeaveModal.reason}</span>
+                </div>
+                {reviewLeaveModal.prescriptionDoc && (
+                  <div className="border-t border-white/5 pt-2">
+                    <a 
+                      href={`http://localhost:5000/uploads/${reviewLeaveModal.prescriptionDoc}`} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-xs text-cyan-400 font-bold hover:underline"
+                    >
+                      <FileText size={13} /> Open Medical Prescription / Doctor Note
+                    </a>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-bold uppercase text-gray-300">Admin Remarks / Notes (Optional)</label>
+                <textarea 
+                  rows="3"
+                  placeholder="Enter remarks for the driver..."
+                  value={adminLeaveComment}
+                  onChange={e => setAdminLeaveComment(e.target.value)}
+                  className="py-2 px-3 text-xs bg-slate-900 border border-white/10 text-white rounded-xl"
+                />
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button 
+                  type="button"
+                  onClick={() => handleReviewLeaveSubmit('Rejected')}
+                  className="btn-danger py-2.5 px-4 text-xs font-bold flex-1"
+                >
+                  Reject Leave
+                </button>
+                <button 
+                  type="button"
+                  onClick={() => handleReviewLeaveSubmit('Approved')}
+                  className="btn-primary py-2.5 px-4 text-xs font-bold flex-1 bg-gradient-to-r from-emerald-500 to-teal-600"
+                >
+                  Approve Leave
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* DIALOG 9: VIEW MARKETPLACE ITEM DETAIL & CONTACT SELLER MODAL */}
+      {selectedMarketplaceItem && (
+        <div 
+          style={{
+            position: 'fixed',
+            top: 0, left: 0, right: 0, bottom: 0,
+            zIndex: 99999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: 'rgba(0,0,0,0.85)',
+            backdropFilter: 'blur(8px)',
+            padding: '16px',
+          }}
+          onClick={(e) => { if (e.target === e.currentTarget) setSelectedMarketplaceItem(null); }}
+        >
+          <div 
+            className="animate-fade-in"
+            style={{
+              width: '100%',
+              maxWidth: '520px',
+              background: '#09150e',
+              borderRadius: '24px',
+              border: '1.5px solid rgba(82,183,136,0.3)',
+              boxShadow: '0 32px 80px rgba(0,0,0,0.9)',
+              overflow: 'hidden',
+              display: 'flex',
+              flexDirection: 'column',
+            }}
+          >
+            {/* Modal Header Image Banner */}
+            <div style={{ position: 'relative', height: '220px', background: '#020617' }}>
+              <img 
+                src={selectedMarketplaceItem.imageUrl || 'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=500&auto=format&fit=crop&q=60'} 
+                alt={selectedMarketplaceItem.title} 
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                onError={e => { e.target.src = 'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=500&auto=format&fit=crop&q=60'; }}
+              />
+              <button 
+                onClick={() => setSelectedMarketplaceItem(null)}
+                style={{
+                  position: 'absolute', top: '14px', right: '14px',
+                  background: 'rgba(0,0,0,0.6)', border: 'none', borderRadius: '50%',
+                  width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  cursor: 'pointer', color: '#ffffff'
+                }}
+              >
+                <X size={16} />
+              </button>
+              <span className="absolute bottom-3 left-4 font-mono font-black text-emerald-300 text-xl bg-slate-950/90 px-3 py-1 rounded-xl border border-emerald-500/30">
+                ₹{selectedMarketplaceItem.price?.toLocaleString('en-IN')}
+              </span>
+            </div>
+
+            {/* Modal Body */}
+            <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div>
+                <span className="badge badge-info text-xs font-bold mb-1">{selectedMarketplaceItem.category}</span>
+                <h3 className="text-lg font-extrabold text-white">{selectedMarketplaceItem.title}</h3>
+                <p className="text-xs text-gray-400 mt-0.5 flex items-center gap-1 font-medium">
+                  <MapPin size={13} className="text-emerald-400" /> Location: {selectedMarketplaceItem.location} · Condition: <span className="text-white font-bold">{selectedMarketplaceItem.condition}</span>
+                </p>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-white/5 border border-white/5 flex flex-col gap-1.5">
+                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Item Description</span>
+                <p className="text-xs text-gray-200 leading-relaxed">{selectedMarketplaceItem.description}</p>
+              </div>
+
+              {/* Seller Contact Info Box */}
+              <div className="p-4 rounded-2xl bg-gradient-to-r from-emerald-950/60 to-teal-950/40 border border-emerald-500/40 flex flex-col gap-2">
+                <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest flex items-center gap-1">
+                  <User size={13} /> Seller Contact Details
+                </span>
+                <div className="flex items-center justify-between text-xs pt-1">
+                  <span className="text-gray-300 font-semibold">Seller Name:</span>
+                  <span className="text-white font-bold">{selectedMarketplaceItem.sellerName} ({selectedMarketplaceItem.sellerRole || 'Seller'})</span>
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-gray-300 font-semibold">Phone / WhatsApp:</span>
+                  <a 
+                    href={`tel:${selectedMarketplaceItem.contactPhone}`} 
+                    className="text-cyan-400 font-mono font-extrabold hover:underline"
+                  >
+                    {selectedMarketplaceItem.contactPhone || '+91 9876543210'}
+                  </a>
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <a 
+                  href={`https://wa.me/${selectedMarketplaceItem.contactPhone?.replace(/[^0-9]/g, '') || '919876543210'}?text=Hi%20${encodeURIComponent(selectedMarketplaceItem.sellerName)},%20I%20am%20interested%20in%20buying%20your%20OLX%20listing:%20${encodeURIComponent(selectedMarketplaceItem.title)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-secondary py-3 px-4 text-xs font-bold w-1/2 text-center flex items-center justify-center gap-2"
+                >
+                  <Send size={14} /> Contact Seller
+                </a>
+
+                {selectedMarketplaceItem.status === 'Sold' ? (
+                  <div className="btn-disabled py-3 px-4 text-xs font-extrabold w-1/2 text-center bg-slate-800 text-gray-400 border border-gray-700 rounded-xl flex items-center justify-center gap-2 cursor-not-allowed">
+                    <CheckCircle size={14} className="text-emerald-400" /> SOLD
+                  </div>
+                ) : user?.role === 'Generator' ? (
+                  <button
+                    type="button"
+                    onClick={() => handleMarketplaceRazorpayCheckout(selectedMarketplaceItem)}
+                    className="btn-primary py-3 px-4 text-xs font-extrabold w-1/2 text-center bg-gradient-to-r from-blue-600 via-indigo-600 to-emerald-600 shadow-lg hover:brightness-110 flex items-center justify-center gap-2 transition-all"
+                  >
+                    <DollarSign size={14} /> Buy via Razorpay (₹{selectedMarketplaceItem.price?.toLocaleString('en-IN')})
+                  </button>
+                ) : (
+                  <div className="py-3 px-3 text-[11px] font-semibold w-1/2 text-center bg-amber-950/40 text-amber-300 border border-amber-500/30 rounded-xl flex items-center justify-center">
+                    Buy option is only for Users
+                  </div>
+                )}
+              </div>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* DIALOG 10: RAZORPAY MARKETPLACE ITEM PAYMENT MODAL */}
+      {marketplacePaymentItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+          <div className="w-full max-w-md glass border border-blue-500/40 rounded-3xl p-8 shadow-2xl animate-fade-in flex flex-col gap-6 relative overflow-hidden bg-slate-950">
+            {/* Razorpay header strip */}
+            <div className="absolute top-0 inset-x-0 h-2.5 bg-gradient-to-r from-blue-500 via-indigo-500 to-emerald-500" />
+            
+            <div className="flex justify-between items-center pt-1">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center font-black text-white text-base shadow-md">
+                  R
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-sm text-white tracking-wide uppercase">Razorpay Payment Gateway</h3>
+                  <span className="text-[10px] text-cyan-400 font-mono block -mt-0.5">Test Mode Sandbox · OLX Marketplace</span>
+                </div>
+              </div>
+              <button onClick={() => setMarketplacePaymentItem(null)} className="p-1.5 hover:bg-white/10 rounded-full text-gray-400 hover:text-white transition-colors">
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="bg-slate-900/90 border border-white/10 p-4 rounded-2xl flex flex-col gap-2">
+              <div className="flex justify-between items-start">
+                <div>
+                  <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-widest block">ITEM PURCHASE</span>
+                  <h4 className="text-sm font-extrabold text-white">{marketplacePaymentItem.title}</h4>
+                  <span className="text-[10px] text-gray-400 block mt-0.5 font-mono">Key: rzp_test_SC7GZQVzAK7jRK</span>
+                </div>
+                <span className="text-xl font-mono font-black text-emerald-400 bg-emerald-950/60 px-3 py-1 rounded-xl border border-emerald-500/30">
+                  ₹{marketplacePaymentItem.price?.toLocaleString('en-IN')}
+                </span>
+              </div>
+            </div>
+
+            <form onSubmit={handleMarketplacePaymentSubmit} className="flex flex-col gap-4">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-semibold text-gray-300">Cardholder / Payer Name</label>
+                <input type="text" required defaultValue={user?.name || 'Generator Buyer'} placeholder="John Doe" className="py-2.5 px-3 text-sm bg-slate-900 border border-white/10 text-white rounded-xl" />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-semibold text-gray-300">Razorpay Card / Payment Credentials</label>
+                <div className="grid grid-cols-3 gap-2">
+                  <input type="text" required placeholder="4111 2222 3333 4444" defaultValue="4111 2222 3333 4444" className="col-span-2 py-2.5 px-3 text-sm bg-slate-900 border border-white/10 text-white rounded-xl font-mono" />
+                  <input type="text" required placeholder="12/28" defaultValue="12/28" className="py-2.5 px-3 text-sm bg-slate-900 border border-white/10 text-white rounded-xl font-mono" />
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-semibold text-gray-300">UPI ID (Google Pay / PhonePe / Paytm)</label>
+                <input type="text" placeholder="user@upi" defaultValue={`${user?.username || 'user'}@upi`} className="py-2.5 px-3 text-sm bg-slate-900 border border-white/10 text-white rounded-xl font-mono" />
+              </div>
+
+              <button type="submit" className="btn-primary py-3.5 w-full text-sm font-extrabold bg-gradient-to-r from-blue-600 via-indigo-600 to-emerald-600 text-white shadow-xl hover:brightness-110 transition-all flex items-center justify-center gap-2">
+                <CheckCircle size={16} /> Authorize Razorpay Payment (₹{marketplacePaymentItem.price?.toLocaleString('en-IN')})
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
+
+

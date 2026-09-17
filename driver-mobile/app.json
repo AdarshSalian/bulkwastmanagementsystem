@@ -1,0 +1,26 @@
+{
+  "expo": {
+    "name": "Bulk Waste Driver App",
+    "slug": "bulk-waste-driver-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "backgroundColor": "#07120c"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.bulkwaste.driverapp"
+    },
+    "android": {
+      "backgroundColor": "#07120c",
+      "package": "com.bulkwaste.driverapp"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-status-bar"
+    ]
+  }
+}

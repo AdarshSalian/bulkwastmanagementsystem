@@ -1,0 +1,119 @@
+================================================================================
+          BULK WASTE MANAGEMENT SYSTEM - COMPLETE SYSTEM WORKFLOW
+================================================================================
+
+1. SYSTEM OVERVIEW & ARCHITECTURE
+--------------------------------------------------------------------------------
+The Bulk Waste Management System is an end-to-end digital ecosystem for managing 
+bulk waste collection, fleet dispatch, weight verification, plant processing, 
+and financial settlements.
+
+Technologies:
+  - Frontend: React 19, Vite, Leaflet Maps, Lucide Icons, Tailwind / Vanilla CSS
+  - Backend: Node.js, Express API Server, JSON File DB / MongoDB
+  - Mobile Apps: Transporter Driver App & Waste Generator App (React Native / Expo)
+
+
+2. USER ROLES & REGISTRATION WORKFLOW
+--------------------------------------------------------------------------------
+There are 4 core roles in the system:
+
+A. Waste Generator (User)
+   - Entities: Housing Societies, Commercial Malls, Factories, Hotels.
+   - Registration Requirements (Mandatory):
+     * Name / Username (Minimum 3 chars)
+     * Password (Minimum 6 chars, with eye toggle visibility)
+     * Account Role: Generator
+     * Full Name (First & Last Name)
+     * Organization / Society Name
+     * Contact Number (10-digit mobile number starting 6-9)
+     * Email Address (Valid email format)
+     * Verification Document Upload (.pdf, .png, .jpg)
+   - Status: Starts as Pending/Active. Once verified, can register properties and raise pickup requests.
+
+B. Transporter / Driver
+   - Responsible for executing assigned pickup routes, measuring scale weights, 
+     collecting payments or dispensing payouts to generators.
+   - Logins: Default driver credentials (`driver`, `driver2`, `john_doe`).
+
+C. Plant Operator
+   - Responsible for receiving waste deliveries at processing hubs (Composting, 
+     Recycling, Waste-to-Energy), verifying weight, and updating plant capacity.
+
+D. System Administrator (Admin)
+   - Full governance over all system operations: approving pending users, 
+     assigning fleet drivers, dispatching payout funds, managing pricing rules, 
+     resolving complaints, and auditing real-time GPS locations.
+
+
+3. END-TO-END OPERATIONAL WORKFLOW
+--------------------------------------------------------------------------------
+
+STEP 1: PROPERTY REGISTRATION (Waste Generator)
+  - Generator logs into the portal and navigates to "Properties".
+  - Fills in Property Name, Address, Category (Residential/Commercial/Industrial), 
+    and pins the exact location using the interactive Leaflet Map.
+  - The property profile is saved for scheduling future bulk waste pickups.
+
+STEP 2: RAISING A PICKUP REQUEST (Waste Generator)
+  - Generator opens "Raise Pickup Request" form.
+  - Mandatory Inputs:
+    1. Select Property (dropdown)
+    2. Waste Category (Organic/Food, Recyclable, Hazardous, E-waste, Construction, Other)
+    3. Estimated Weight in Tons (minimum 0.1 ton, max 500 tons)
+    4. Scheduled Date (dd-mm-yyyy format, cannot be in past, max 90 days ahead)
+  - System calculates an estimated fee breakdown:
+    * Transport Fee: Base hub distance + rate per km
+    * Weight Fee: Rate per ton based on waste category
+  - Request is generated with a unique ID (e.g. req-1788929965861) and status: PENDING.
+  - Requests are automatically sorted NEWEST to OLDEST across all dashboards.
+
+STEP 3: DISPATCH & FLEET ASSIGNMENT (System Administrator)
+  - Admin views all incoming requests in "User Requests & Audit Log" (sorted Newest to Oldest).
+  - Admin assigns an active Driver and Fleet Vehicle (Compactor/Dumper).
+  - Financial Fund Allocation:
+    * For Non-Food Waste: Admin dispatches payout funds to the driver.
+  - Request status transitions from PENDING -> ASSIGNED.
+
+STEP 4: PICKUP EXECUTION & SCALE WEIGHT LOG (Transporter / Driver)
+  - Driver logs in and opens "Your Fleet Action Sheet".
+  - Pickups are displayed from NEW TO OLD with explicit Serial Numbers (S.No: #1, #2, ...).
+  - Driver arrives at the pickup property and weighs the bulk waste on destination scale.
+  - Driver MANDATORILY enters:
+    * Waste Category Type
+    * Destination Scale Weight (Tons) - Required min 0.1 ton
+  - Financial Settlement Logic:
+    * Organic / Food Waste: Generator pays Driver (Base fee + Weight rate).
+    * Non-Food Waste (Recyclable/E-Waste/Construction): Driver pays Generator 
+      from Admin-dispatched funds based on exact scale weight.
+  - Driver submits "Set Weight & Pay User".
+  - Request status transitions from ASSIGNED -> COLLECTED.
+
+STEP 5: PLANT DELIVERY & PROCESSING (Plant Operator)
+  - Driver transports collected waste to designated Processing Hub 
+    (e.g., Metro Eco Composting Plant or City Recycling Hub).
+  - Plant Operator verifies delivery, checks incoming tonnage, and logs receipt.
+  - Plant current load and capacity metrics update automatically.
+  - Request status transitions from COLLECTED -> COMPLETED.
+
+
+4. AUXILIARY SYSTEM WORKFLOWS
+--------------------------------------------------------------------------------
+
+A. OLX RECYCLABLES MARKETPLACE
+   - Users can list recyclable scrap or secondary waste items for sale/trade.
+   - Buyers filter listings by category (Electronics, Plastic, Metal, Paper, Furniture), 
+     view item condition, and contact sellers directly.
+
+B. COMPLAINT & GRIEVANCE REDRESSAL
+   - Users or Drivers can file formal complaints tagged to specific Pickup Request IDs.
+   - Admin investigates logs, tracks driver route history, updates complaint status 
+     (Pending -> In Progress -> Resolved), and sends notification alerts.
+
+C. LIVE GPS & FLEET AUDITING
+   - Admin monitors live location coordinates and endpoint status for all active 
+     vehicles and drivers on the map.
+
+================================================================================
+                          END OF WORKFLOW DOCUMENTATION
+================================================================================

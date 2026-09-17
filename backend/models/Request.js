@@ -6,7 +6,7 @@ const requestSchema = new mongoose.Schema({
   propertyId: { type: String, required: true },
   wasteType: { type: String, required: true },
   wasteQuantity: { type: Number, required: true },
-  status: { type: String, default: 'Pending', enum: ['Pending', 'Assigned', 'Collected', 'Completed', 'Cancelled'] },
+  status: { type: String, default: 'Pending', enum: ['Pending', 'Assigned', 'En Route', 'Collected', 'Completed', 'Cancelled'] },
   scheduledDate: { type: String, required: true },
   assignedDriverId: { type: String, default: null },
   assignedVehicleId: { type: String, default: null },

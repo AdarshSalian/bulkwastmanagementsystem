@@ -1,0 +1,363 @@
+================================================================================
+           BULK WASTE MANAGEMENT SYSTEM - COMPREHENSIVE VIVA GUIDE
+================================================================================
+Project Title   : Bulk Waste Management System
+Architecture    : Full-Stack Web & Cross-Platform Mobile Application
+Target Users    : Waste Generators, Transporters/Drivers, Plant Operators, Admins
+
+--------------------------------------------------------------------------------
+TABLE OF CONTENTS:
+1. Project Overview & Problem Statement
+2. Programming Languages & Technologies Used (Detailed "How It Is Used")
+3. End-to-End System Workflow (Step-by-Step Lifecycle)
+4. Key Features & Modules
+5. User Roles & Permission Matrix
+6. Database Architecture & Data Models
+7. Financial Settlement & Pricing Engine
+8. Top Viva Questions & Model Answers
+================================================================================
+
+
+================================================================================
+1. PROJECT OVERVIEW & PROBLEM STATEMENT
+================================================================================
+The Bulk Waste Management System is an end-to-end digital ecosystem designed to 
+manage, streamline, and audit the entire lifecycle of bulk waste generation, 
+transportation, processing, and circular economy trading.
+
+Bulk waste producers (such as gated housing societies, commercial malls, IT parks, 
+hotels, and manufacturing factories) generate large volumes of solid waste that 
+cannot be handled by standard municipal doorstep collection. 
+
+This platform connects:
+  - Waste Generators (Entities producing bulk waste)
+  - Fleet Transporters / Drivers (Collection & transport logistics)
+  - Processing Plants (Composting, Recycling, Waste-to-Energy facilities)
+  - System Administrators (Centralized governance, audit, and dispatch)
+
+
+================================================================================
+2. PROGRAMMING LANGUAGES & TECHNOLOGIES USED (HOW THEY ARE USED)
+================================================================================
+
+1. JAVASCRIPT (ES6+ / Modern JavaScript)
+   -----------------------------------------------------------------------------
+   - How it is used:
+     * Full-Stack Universal Language: JavaScript is used across the entire stack 
+       (Backend Node.js/Express, Frontend React, and Mobile React Native).
+     * Asynchronous Programming: Uses Promises and Async/Await for non-blocking 
+       API communication, database read/write operations, and real-time state syncing.
+     * Business Logic: Powers pricing algorithms (calculating transport fees based 
+       on distance and weight charges based on waste category), financial settlement 
+       calculations (pay-in vs. payout), and dynamic data filtering.
+     * Coordinate Mathematics: Calculates geo-coordinates and distances between 
+       generator properties, driver locations, and processing plants.
+
+2. HTML5 (Hypertext Markup Language)
+   -----------------------------------------------------------------------------
+   - How it is used:
+     * Semantic Page Layout: Formulates the DOM structure across the dashboard 
+       interfaces (headers, sidebars, data tables, modal dialogs, forms).
+     * HTML5 Canvas API: Used to render real-time interactive route visualizations, 
+       simulating truck movement, waypoint plotting, and GPS progression.
+     * Form Validation & Media Upload: HTML5 file input interfaces handle KYC 
+       document uploads (PDF/Images) and waste inspection photos.
+
+3. CSS3 & VANILLA CSS (Styling & Design System)
+   -----------------------------------------------------------------------------
+   - How it is used:
+     * Custom Dark-Mode Theme: Tailored HSL color palette with high-contrast 
+       visual hierarchy designed specifically for operational clarity.
+     * Responsive Layouts: Uses CSS Flexbox and Grid to provide seamless layouts 
+       on laptops, tablets, and desktop workstations.
+     * Glassmorphism & Micro-animations: Smooth CSS transitions, glowing status 
+       badges, hover effects, and animated loading indicators.
+
+4. NODE.JS (Backend Runtime Environment)
+   -----------------------------------------------------------------------------
+   - How it is used:
+     * Server Runtime: Executes server-side JavaScript code asynchronously on an 
+       event-driven, non-blocking I/O model.
+     * File System Management (fs module): Manages JSON database persistence, file 
+       streams, and uploaded KYC verification documents.
+     * API Orchestrator: Serves as the central backend hub connecting the web portal 
+       and mobile applications.
+
+5. EXPRESS.JS (Backend Web Application Framework)
+   -----------------------------------------------------------------------------
+   - How it is used:
+     * RESTful API Routing: Defines and handles modular HTTP endpoints 
+       (e.g., /api/auth, /api/requests, /api/properties, /api/vehicles, 
+       /api/plants, /api/marketplace, /api/complaints).
+     * Middleware Architecture:
+       - CORS (Cross-Origin Resource Sharing) middleware to allow secure frontend-backend calls.
+       - Body-Parser / JSON middleware for parsing incoming payload requests.
+       - Custom JWT Authentication & RBAC middleware to restrict unauthorized endpoints.
+       - Multer middleware for handling multipart/form-data document uploads.
+
+6. REACT 19 & VITE (Frontend Web Library & Build Tool)
+   -----------------------------------------------------------------------------
+   - How it is used:
+     * Single Page Application (SPA): Fast, reactive user interface powered by Vite.
+     * Component-Driven Architecture: Modular UI broken into reusable components 
+       (Modals, LeafletMap, ActionSheets, AnalyticsCards, StatusBadges).
+     * React Hooks: Extensively utilizes useState, useEffect, useRef, and useMemo 
+       for dynamic state updates, auto-refreshing lists, and real-time form calculations.
+     * Dynamic SVG Data Charts: Generates real-time bar, doughnut, and progress 
+       charts using pure SVG without heavy external dependencies.
+
+7. REACT NATIVE & EXPO (Cross-Platform Mobile Apps)
+   -----------------------------------------------------------------------------
+   - How it is used:
+     * Transporter Driver App (`driver-mobile`): Allows drivers on the field to 
+       view assigned trips, log on-site scale weight, record settlements, and view routes.
+     * Waste Generator App (`user-mobile`): Enables property managers to raise 
+       pickup requests and track status directly from smartphones.
+     * Expo Location API: Integrates mobile device GPS capabilities for live location tracking.
+
+8. DATABASE LAYER (Persistent JSON Document DB / MongoDB Mongoose)
+   -----------------------------------------------------------------------------
+   - How it is used:
+     * Fast File-Based Document Store (`backend/data/db.json`): Structured JSON 
+       document database providing persistent data storage without external DB setup.
+     * Mongoose ODM Models: Schema definitions for Users, Requests, Properties, 
+       Vehicles, Plants, and Complaints, enabling seamless transition to MongoDB Atlas.
+
+9. JSON WEB TOKENS (JWT) & BCRYPTJS (Security & Cryptography)
+   -----------------------------------------------------------------------------
+   - How it is used:
+     * Password Hashing: Bcryptjs hashes user passwords with salt before storing, 
+       preventing plain-text exposure.
+     * Stateless Authentication: Generates signed JWT tokens upon login, stored in 
+       client headers to authenticate role permissions on every API call.
+
+10. LEAFLET & REACT-LEAFLET (Interactive Mapping)
+    ----------------------------------------------------------------------------
+    - How it is used:
+      * OpenStreetMap integration for geo-tagging properties during registration.
+      * Visualizing processing hub plants and driver route trajectories.
+
+
+================================================================================
+3. END-TO-END SYSTEM WORKFLOW (STEP-BY-STEP LIFECYCLE)
+================================================================================
+
+STAGE 1: REGISTRATION & KYC VERIFICATION
+--------------------------------------------------------------------------------
+1. User registers as a "Waste Generator" with Organization Name, Contact, Email, 
+   Password, and mandatory KYC verification document (.pdf/.png/.jpg).
+2. The account is marked with status: "PENDING_APPROVAL".
+3. System Administrator reviews the uploaded KYC document in the Admin Audit Log 
+   and approves the account (Status -> "ACTIVE").
+
+STAGE 2: PROPERTY GEO-TAGGING
+--------------------------------------------------------------------------------
+1. Active Generator logs in and opens the "Properties" module.
+2. Generator inputs Property Name, Category (Residential/Commercial/Industrial), 
+   and uses the interactive Leaflet Map to pin exact GPS latitude/longitude.
+3. The property profile is saved for recurring waste pickups.
+
+STAGE 3: RAISING A BULK PICKUP REQUEST
+--------------------------------------------------------------------------------
+1. Generator opens "Raise Pickup Request" form.
+2. Selects registered property, waste category (Organic/Food, Recyclable, Hazardous, 
+   E-Waste, Construction/Debris), estimated weight (in Tons), and scheduled date.
+3. System automatically calculates an estimated fee breakdown:
+   - Transport Fee: Base fee + distance rate per km.
+   - Processing / Weight Fee: Tiered rate based on waste type.
+4. Request is created with a unique ID (e.g., req-1788929965861) and status: "PENDING".
+5. All requests across the system are sorted chronologically from NEWEST to OLDEST.
+
+STAGE 4: FLEET DISPATCH & FINANCIAL ADVANCE (ADMIN)
+--------------------------------------------------------------------------------
+1. Admin views incoming requests in the Dispatch Center.
+2. Admin assigns an available Driver and Vehicle (Compactor Truck, Dumper, Tipper).
+3. Fund Advancement: For non-food recyclable/e-waste requests where the system buys 
+   scrap from the generator, Admin dispatches payout funds to the driver's wallet.
+4. Status transitions from "PENDING" -> "ASSIGNED".
+
+STAGE 5: ON-SITE COLLECTION & SCALE WEIGHT LOGGING (DRIVER)
+--------------------------------------------------------------------------------
+1. Driver receives the assigned trip in the Driver Action Sheet (with Serial No. #1, #2...).
+2. Driver navigates to the property location (viewing map coordinates).
+3. Driver loads and measures waste on a calibrated destination/portable scale.
+4. Driver enters verified Scale Weight (Tons) and Waste Category.
+5. Bidirectional Financial Settlement:
+   - Case A (Organic / Food / Mixed Waste): User pays Driver/System for disposal fee.
+   - Case B (Recyclable / Metal / E-Waste): Driver pays User from Admin-dispatched funds.
+6. Driver submits "Set Weight & Complete Collection".
+7. Status transitions from "ASSIGNED" -> "COLLECTED".
+
+STAGE 6: PROCESSING PLANT RECEPTION & RECYCLING (PLANT OPERATOR)
+--------------------------------------------------------------------------------
+1. Driver transports collected waste to the designated Processing Plant 
+   (e.g., Composting Unit, Material Recovery Facility, Waste-to-Energy Plant).
+2. Plant Operator verifies incoming vehicle, validates tonnage, and logs receipt.
+3. Operator performs Wet/Dry waste segregation and updates plant capacity levels.
+4. Status transitions from "COLLECTED" -> "COMPLETED".
+
+STAGE 7: CIRCULAR ECONOMY MARKETPLACE & GRIEVANCE REDRESSAL
+--------------------------------------------------------------------------------
+- OLX-Style Scrap Marketplace: Users can list recyclable secondary raw materials 
+  (plastics, scrap metal, paper bundles, e-waste) for direct trading.
+- Grievance Redressal: Users can raise complaint tickets tagged to specific Pickup 
+  Request IDs. Admin audits logs and updates status to "IN_PROGRESS" or "RESOLVED".
+
+
+================================================================================
+4. KEY FEATURES & MODULES
+================================================================================
+
+1. Multi-Role Dashboard Architecture:
+   - 4 specialized views tailored to Generator, Driver, Plant Operator, and Admin.
+
+2. Interactive Leaflet GIS Mapping:
+   - Visual location pinning for properties, live driver route mapping, and plant hubs.
+
+3. Dynamic Tiered Pricing & Distance Calculation Engine:
+   - Automated formula computing transportation distance and category-based weight charges.
+
+4. Bidirectional Financial Settlement Engine:
+   - Handles both Fee Collection (Generator -> System) and Scrap Buyback Payouts (System -> Generator).
+
+5. Real-Time Fleet & Action Sheet Management:
+   - Serialized, real-time updated action sheets sorted strictly from Newest to Oldest.
+
+6. Plant Capacity & Segregation Tracker:
+   - Real-time monitoring of plant maximum vs. occupied tonnage capacity with segregation metrics.
+
+7. Secondary Recyclables Marketplace (Scrap Trading):
+   - Direct B2B/B2C listing and filtering of recyclable scrap materials.
+
+8. Comprehensive Ticket-Based Grievance Management:
+   - End-to-end complaint tracking tied directly to pickup request transaction IDs.
+
+9. Simulated Payment Integration:
+   - Realistic Razorpay payment gateway simulation with animated modal and receipt generation.
+
+10. Native SVG Analytics & Reporting Engine:
+    - Zero-dependency custom SVG analytical charts showing volume trends, revenue, and waste breakdown.
+
+
+================================================================================
+5. USER ROLES & PERMISSION MATRIX
+================================================================================
+| Feature / Action            | Generator | Driver    | Plant Operator | Admin     |
+|-----------------------------|-----------|-----------|----------------|-----------|
+| Register / Login            | Yes (KYC) | Yes       | Yes            | Yes       |
+| Add Property (Map Pin)      | Yes       | No        | No             | Yes       |
+| Raise Pickup Request        | Yes       | No        | No             | Yes       |
+| Assign Driver & Vehicle     | No        | No        | No             | Yes       |
+| Dispatch Financial Funds    | No        | No        | No             | Yes       |
+| Scale Weight Logging        | No        | Yes       | No             | Yes       |
+| Settle User Payment/Payout  | Pay Fee   | Transact  | No             | Audit All |
+| Log Plant Delivery Receipt  | No        | No        | Yes            | Yes       |
+| Manage Plant Capacity       | No        | No        | Yes            | Yes       |
+| Post / Browse Marketplace   | Yes       | Yes       | Yes            | Yes       |
+| Raise / Resolve Complaints  | Raise     | Raise     | Raise          | Resolve   |
+
+
+================================================================================
+6. DATABASE ARCHITECTURE & DATA MODELS
+================================================================================
+
+The database maintains the following core collections/entities:
+
+1. Users Entity:
+   - id, username, password (hashed), role ('admin'|'generator'|'driver'|'operator'), 
+     organizationName, contact, email, status ('active'|'pending_approval'), documentUrl
+
+2. Properties Entity:
+   - id, userId, name, address, category ('residential'|'commercial'|'industrial'), 
+     coordinates: { lat, lng }, createdAt
+
+3. Pickup Requests Entity:
+   - id (req-xxx), userId, propertyId, wasteCategory, estimatedWeight, actualWeight, 
+     scheduledDate, status ('pending'|'assigned'|'collected'|'completed'|'cancelled'), 
+     driverId, vehicleId, plantId, transportFee, weightFee, totalAmount, 
+     paymentStatus, settlementType ('fee_collection'|'scrap_payout'), createdAt
+
+4. Vehicles Entity:
+   - id, registrationNumber, type ('Compactor'|'Dumper'|'Tipper'), capacityTons, 
+     status ('available'|'in_transit'|'maintenance'), currentDriverId
+
+5. Processing Plants Entity:
+   - id, name, type ('Composting'|'Recycling'|'Waste-to-Energy'), maxCapacityTons, 
+     currentLoadTons, coordinates: { lat, lng }
+
+6. Marketplace Items Entity:
+   - id, title, category ('Plastic'|'Metal'|'Electronics'|'Paper'|'Furniture'), 
+     price, quantity, sellerId, contactNumber, status ('available'|'sold')
+
+7. Complaints Entity:
+   - id, requestId, reportedBy, subject, description, status ('pending'|'in_progress'|'resolved')
+
+
+================================================================================
+7. FINANCIAL SETTLEMENT & PRICING ENGINE
+================================================================================
+
+The pricing model differentiates between Waste Disposal and Recyclable Buyback:
+
+1. Fee Calculation Formula:
+   Total Estimated Price = Base Transport Fee + (Distance in km * Rate/km) + (Weight in Tons * Category Rate)
+
+2. Two-Way Settlement Logic:
+   - Case 1: Organic / Food / Hazardous / Mixed Debris
+     * Generator pays disposal charges for logistics and eco-treatment.
+   - Case 2: Clean Recyclables / Metals / E-Waste / Cardboard
+     * System buys high-value recyclables from the generator.
+     * Admin dispatches cash advance to Driver -> Driver weighs on-site -> Driver pays Generator.
+
+
+================================================================================
+8. TOP VIVA QUESTIONS & MODEL ANSWERS (FOR EXAMINER QUESTIONS)
+================================================================================
+
+Q1: What is the main objective of this project?
+Ans: To provide an end-to-end digital logistics and governance platform for bulk 
+     waste producers (societies, malls, factories) that automates pickup requests, 
+     fleet dispatch, accurate scale weight logging, plant delivery verification, 
+     and transparent financial settlements.
+
+Q2: Why did you choose React for the frontend and Node.js/Express for the backend?
+Ans: React offers a component-driven architecture with a virtual DOM, allowing 
+     seamless real-time UI updates without full page reloads. Node.js with Express 
+     provides an asynchronous, non-blocking I/O event-driven environment that is 
+     lightweight, fast, and uses JavaScript across the entire stack for uniform data structures.
+
+Q3: How does your system handle Role-Based Access Control (RBAC)?
+Ans: When a user logs in, the server validates credentials with Bcrypt and generates 
+     a signed JSON Web Token (JWT) containing the user's role. Every subsequent API request 
+     carries this token. Custom Express middleware verifies the token and restricts access 
+     to authorized roles only.
+
+Q4: What happens if the actual waste weight is different from the estimated weight?
+Ans: The generator provides an estimated weight when booking. When the driver arrives, 
+     the waste is weighed on a certified scale. The driver enters the verified actual scale 
+     weight in the Fleet Action Sheet, and the backend dynamically recalculates the exact 
+     settlement amount before final transaction completion.
+
+Q5: What is the difference in handling Organic Waste vs Recyclable Scrap?
+Ans: Organic and hazardous waste incur a disposal & processing fee paid by the generator. 
+     Recyclable scrap (metals, plastics, e-waste) has economic value; therefore, the system 
+     treats it as a buyback where the driver pays the generator using Admin-allocated funds.
+
+Q6: How does the system prevent unauthorized or fraudulent registrations?
+Ans: Waste generators must upload valid KYC verification documents during registration. 
+     Their account remains in "Pending Approval" state until an Administrator reviews 
+     and approves their credentials in the Admin Audit Dashboard.
+
+Q7: How is live location and mapping handled?
+Ans: We use Leaflet and OpenStreetMap on the web frontend to allow users to pin property 
+     GPS coordinates and visualize plant hubs. In the mobile driver app, Expo Location 
+     fetches device GPS coordinates.
+
+Q8: How are real-time analytics charts implemented without breaking dependencies?
+Ans: We implemented custom SVG-based analytical charts (bar graphs, doughnut charts, 
+     progress meters) calculated directly from real-time database metrics, ensuring 
+     zero third-party chart library deprecation or peer-dependency conflicts.
+
+================================================================================
+                              END OF VIVA GUIDE
+================================================================================
